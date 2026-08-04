@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMAZING RACE SMAN 2 BREBES - Seberapa Kenal Sekolah Kita?</title>
+    <title>AMAZING RACE SMAN 2 BREBES - Program Unggulan & Buka Kartu</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
@@ -35,6 +35,7 @@
                         'float': 'float 4s ease-in-out infinite',
                         'pulse-glow': 'pulseGlow 2s infinite',
                         'bounce-subtle': 'bounceSubtle 2s infinite',
+                        'card-pop': 'cardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                     },
                     keyframes: {
                         float: {
@@ -47,7 +48,11 @@
                         },
                         bounceSubtle: {
                             '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        },
+                        cardPop: {
+                            '0%': { transform: 'scale(0.8)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
                         }
                     }
                 }
@@ -55,9 +60,8 @@
         }
     </script>
     <style>
-        /* Custom Glassmorphism Styles */
         .glass-card {
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.88);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.125);
@@ -80,23 +84,31 @@
             background: radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 60%, #020617 100%);
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        .perspective-1000 {
+            perspective: 1000px;
         }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
         }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.5);
-            border-radius: 4px;
+        .card-flipped {
+            transform: rotateY(180deg);
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(59, 130, 246, 0.8);
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+        }
+        .card-back {
+            transform: rotateY(180deg);
         }
 
-        /* Option Hover & Selection States */
         .option-btn {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -124,7 +136,6 @@
             40%, 80% { transform: translateX(8px); }
         }
 
-        /* Circular Timer SVG Animation */
         .timer-circle-bg {
             fill: none;
             stroke: rgba(255, 255, 255, 0.1);
@@ -139,19 +150,22 @@
             transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
         }
 
-        /* Confetti Canvas */
-        #confettiCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 999;
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.8);
         }
 
-        /* Background Particle Canvas */
-        #bgCanvas {
+        #confettiCanvas, #bgCanvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -159,6 +173,9 @@
             height: 100vh;
             pointer-events: none;
             z-index: 0;
+        }
+        #confettiCanvas {
+            z-index: 999;
         }
     </style>
 </head>
@@ -170,21 +187,39 @@
     <!-- MAIN APP CONTAINER -->
     <div class="relative z-10 min-h-screen flex flex-col justify-between p-3 sm:p-6 max-w-6xl mx-auto">
 
-        <!-- GLOBAL HEADER / AUDIO & ADMIN CONTROLS -->
-        <header class="w-full flex justify-between items-center py-2.5 px-4 glass-light rounded-2xl mb-4 shadow-lg border border-white/10">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.goHome()">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-amber-400 p-0.5 shadow-md flex items-center justify-center">
-                    <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center font-black text-amber-400 text-lg">
-                        S2
+        <header class="w-full glass-light rounded-2xl mb-4 p-3 shadow-lg border border-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex items-center space-x-3 cursor-pointer w-full md:w-auto justify-between md:justify-start" onclick="app.goHome()">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-amber-400 p-0.5 shadow-md flex items-center justify-center">
+                        <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center font-black text-amber-400 text-lg">
+                            S2
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-sm sm:text-base font-bold tracking-wide text-white leading-tight">SMAN 2 BREBES</h1>
+                        <p class="text-xs text-blue-300 font-medium">Amazing Race & Program Unggulan</p>
                     </div>
                 </div>
-                <div>
-                    <h1 class="text-sm sm:text-base font-bold tracking-wide text-white leading-tight">SMAN 2 BREBES</h1>
-                    <p class="text-xs text-blue-300 font-medium">Amazing Race Game</p>
-                </div>
+
+                <button onclick="app.openAdminAuthModal()" title="Mode Admin" class="md:hidden p-2 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                </button>
             </div>
 
-            <!-- Controls (Audio & Admin Panel Access) -->
+            <!-- MODE SELECTOR TABS IN NAVBAR -->
+            <nav id="navModeSelector" class="hidden flex items-center bg-slate-900/80 p-1 rounded-xl border border-white/10 space-x-1 w-full md:w-auto justify-center">
+                <button id="btnTabRace" onclick="app.selectGameMode('RACE')" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-blue-600 text-white shadow">
+                    <i data-lucide="trophy" class="w-3.5 h-3.5"></i> Amazing Race
+                </button>
+                <button id="btnTabCard" onclick="app.selectGameMode('CARD')" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-white/10">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i> 🃏 Buka Kartu
+                </button>
+                <button id="btnTabMemory" onclick="app.selectGameMode('MEMORY')" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-white/10">
+                    <i data-lucide="puzzle" class="w-3.5 h-3.5"></i> 🧩 Memory Card
+                </button>
+            </nav>
+
+            <!-- Audio & Admin Controls -->
             <div class="flex items-center space-x-2">
                 <button id="btnSound" onclick="app.toggleSFX()" title="Efek Suara (SFX)" class="p-2.5 rounded-xl glass-light hover:bg-white/20 transition text-amber-400 flex items-center justify-center">
                     <i data-lucide="volume-2" class="w-5 h-5"></i>
@@ -192,23 +227,21 @@
                 <button id="btnMusic" onclick="app.toggleBGM()" title="Musik Latar (BGM)" class="p-2.5 rounded-xl glass-light hover:bg-white/20 transition text-blue-400 flex items-center justify-center">
                     <i data-lucide="music" class="w-5 h-5"></i>
                 </button>
-                <button onclick="app.openAdminAuthModal()" title="Mode Admin Guru" class="p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 transition flex items-center gap-1.5 text-xs font-bold px-3">
+                <button onclick="app.openAdminAuthModal()" title="Mode Admin Guru" class="hidden md:flex items-center gap-1.5 p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 transition text-xs font-bold px-3">
                     <i data-lucide="shield-check" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Panel Admin</span>
+                    <span>Panel Admin</span>
                 </button>
             </div>
         </header>
 
-        <!-- VIEW 1: LOGIN PESERTA -->
         <main id="viewLogin" class="flex-1 flex flex-col items-center justify-center my-auto py-6">
             <div class="w-full max-w-md glass-card rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden border border-blue-500/20 shadow-2xl">
-                <!-- Background Decorative Glow -->
                 <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl"></div>
                 <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl"></div>
 
                 <div class="relative mx-auto w-24 h-24 mb-4 rounded-3xl bg-gradient-to-tr from-blue-600 via-amber-400 to-amber-200 p-1 shadow-xl animate-float">
                     <div class="w-full h-full bg-slate-900 rounded-[22px] flex flex-col items-center justify-center p-2 text-center">
-                        <i data-lucide="school" class="w-10 h-10 text-amber-400 mb-1"></i>
+                        <i data-lucide="graduation-cap" class="w-10 h-10 text-amber-400 mb-1"></i>
                         <span class="text-[9px] font-extrabold tracking-widest text-blue-200 uppercase">SMANDA</span>
                     </div>
                 </div>
@@ -216,8 +249,8 @@
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">
                     AMAZING RACE
                 </h2>
-                <p class="text-xs sm:text-sm font-semibold gold-gradient-text tracking-wider uppercase mb-6">
-                    "Seberapa Kenal Sekolah Kita?"
+                <p class="text-xs sm:text-sm font-semibold gold-gradient-text tracking-wider uppercase mb-5">
+                    "Seberapa Kenal Sekolah & Program Unggulan Kita?"
                 </p>
 
                 <!-- Login Form -->
@@ -234,274 +267,441 @@
                                 autocomplete="off"
                                 class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm font-medium">
                         </div>
-                        <!-- Validation Message -->
                         <p id="valError" class="hidden text-xs text-red-400 font-medium mt-1.5 flex items-center gap-1">
                             <i data-lucide="alert-circle" class="w-3.5 h-3.5 inline"></i>
                             <span id="valErrorText">Nama tidak valid.</span>
                         </p>
                     </div>
 
+                    <!-- MODE SELECTION CARDS IN LOGIN -->
+                    <div class="pt-2">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                            Pilih Mode Permainan:
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button type="button" onclick="app.setLoginMode('RACE')" id="btnLoginModeRace" 
+                                class="p-2.5 rounded-2xl border-2 border-blue-500 bg-blue-500/20 text-white text-xs font-bold flex flex-col items-center justify-center gap-1 transition">
+                                <i data-lucide="school" class="w-5 h-5 text-amber-400"></i>
+                                <span>1. Race</span>
+                                <span class="text-[9px] font-normal text-blue-200">20 Kuis Sekolah</span>
+                            </button>
+                            <button type="button" onclick="app.setLoginMode('CARD')" id="btnLoginModeCard" 
+                                class="p-2.5 rounded-2xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 text-xs font-bold flex flex-col items-center justify-center gap-1 transition hover:border-blue-400/50">
+                                <i data-lucide="book-open" class="w-5 h-5 text-amber-400"></i>
+                                <span>2. Buka Kartu</span>
+                                <span class="text-[9px] font-normal text-slate-400">20 Program</span>
+                            </button>
+                            <button type="button" onclick="app.setLoginMode('MEMORY')" id="btnLoginModeMemory" 
+                                class="p-2.5 rounded-2xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 text-xs font-bold flex flex-col items-center justify-center gap-1 transition hover:border-blue-400/50">
+                                <i data-lucide="puzzle" class="w-5 h-5 text-amber-400"></i>
+                                <span>3. Memory</span>
+                                <span class="text-[9px] font-normal text-slate-400">Cari Pasangan</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <button type="submit" 
-                        class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-bold text-base shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group">
+                        class="w-full mt-4 py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-bold text-base shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group">
                         <span>▶ MULAI BERMAIN</span>
                         <i data-lucide="arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1"></i>
                     </button>
                 </form>
 
-                <div class="mt-6 pt-4 border-t border-white/10 text-xs text-slate-400 flex items-center justify-center gap-1">
-                    <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i>
-                    <span>Jawab 20 pertanyaan secepat & setepat mungkin!</span>
+                <div class="mt-5 pt-3 border-t border-white/10 text-xs text-slate-400 flex items-center justify-center gap-1">
+                    <i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Skor otomatis terakumulasi ke dalam profil peserta!</span>
                 </div>
             </div>
         </main>
 
-        <!-- VIEW 2: GAMEPLAY AREA (PESERTA BERMAIN) -->
         <main id="viewGame" class="hidden flex-1 flex-col justify-between my-auto py-2">
-            <!-- DASHBOARD BAR -->
-            <div class="grid grid-cols-3 gap-3 mb-4">
-                <!-- Player Name -->
-                <div class="glass-card p-3 rounded-2xl flex items-center space-x-3 border-l-4 border-l-blue-500">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                <div class="glass-card p-2.5 rounded-2xl flex items-center space-x-2 border-l-4 border-l-blue-500">
                     <div class="p-2 rounded-xl bg-blue-500/20 text-blue-400">
-                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                        <i data-lucide="user" class="w-4 h-4"></i>
                     </div>
                     <div class="truncate">
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Peserta</p>
-                        <p id="dashPlayer" class="text-sm font-bold text-white truncate">Peserta</p>
+                        <p class="text-[9px] uppercase font-bold text-slate-400">Peserta</p>
+                        <p id="dashPlayer" class="text-xs font-bold text-white truncate">Peserta</p>
                     </div>
                 </div>
 
-                <!-- Score -->
-                <div class="glass-card p-3 rounded-2xl flex items-center space-x-3 border-l-4 border-l-amber-400">
+                <div class="glass-card p-2.5 rounded-2xl flex items-center space-x-2 border-l-4 border-l-amber-400">
                     <div class="p-2 rounded-xl bg-amber-400/20 text-amber-400">
-                        <i data-lucide="star" class="w-5 h-5"></i>
+                        <i data-lucide="star" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Skor</p>
-                        <p id="dashScore" class="text-sm font-bold text-amber-300">0</p>
+                        <p class="text-[9px] uppercase font-bold text-slate-400">Skor Saat Ini</p>
+                        <p id="dashScore" class="text-xs font-bold text-amber-300">0 Pts</p>
                     </div>
                 </div>
 
-                <!-- Progress -->
-                <div class="glass-card p-3 rounded-2xl flex items-center space-x-3 border-l-4 border-l-emerald-400">
+                <div class="glass-card p-2.5 rounded-2xl flex items-center space-x-2 border-l-4 border-l-emerald-400 col-span-2 sm:col-span-1">
                     <div class="p-2 rounded-xl bg-emerald-400/20 text-emerald-400">
-                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        <i data-lucide="target" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Soal Ke</p>
-                        <p id="dashProgress" class="text-sm font-bold text-emerald-300">1 / 20</p>
+                        <p class="text-[9px] uppercase font-bold text-slate-400">Soal Ke</p>
+                        <p id="dashProgress" class="text-xs font-bold text-emerald-300">1 / 20</p>
                     </div>
                 </div>
             </div>
 
-            <!-- QUIZ CARD -->
-            <div class="glass-card rounded-3xl p-5 sm:p-8 relative border border-white/10 shadow-2xl flex-1 flex flex-col justify-between">
-                <!-- TOP CARD BAR: Category & Circular Timer -->
-                <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
-                    <span id="questionCategory" class="px-3 py-1 rounded-full text-xs font-extrabold tracking-wide uppercase bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                        Profil Sekolah
+            <!-- Quiz Card Box -->
+            <div class="glass-card rounded-3xl p-5 sm:p-7 border border-white/10 shadow-2xl flex-1 flex flex-col justify-between my-2 relative">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+                    <span id="quizCategory" class="text-xs font-extrabold uppercase tracking-wider text-amber-400 bg-amber-400/10 px-3 py-1 rounded-xl border border-amber-400/20 flex items-center gap-1.5">
+                        <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> Profil Sekolah
                     </span>
 
-                    <!-- Circular Animated Timer -->
-                    <div class="relative flex items-center justify-center w-14 h-14">
+                    <div class="relative flex items-center justify-center w-12 h-12">
                         <svg class="w-full h-full" viewBox="0 0 100 100">
                             <circle class="timer-circle-bg" cx="50" cy="50" r="42"></circle>
-                            <circle id="timerCircle" class="timer-circle-progress" cx="50" cy="50" r="42" 
-                                stroke="#3b82f6" stroke-dasharray="263.89" stroke-dashoffset="0"></circle>
+                            <circle id="quizTimerCircle" class="timer-circle-progress" cx="50" cy="50" r="42" 
+                                stroke="#10b981" stroke-dasharray="263.89" stroke-dashoffset="0"></circle>
                         </svg>
-                        <span id="timerText" class="absolute text-base font-extrabold text-white">15</span>
+                        <span id="quizTimerText" class="absolute text-xs font-extrabold text-white">15</span>
                     </div>
                 </div>
 
-                <!-- Question Text -->
-                <div class="my-auto py-2">
-                    <p id="questionText" class="text-lg sm:text-2xl font-bold text-white leading-relaxed tracking-wide">
-                        Memuat pertanyaan...
-                    </p>
-                </div>
+                <p id="quizQuestionText" class="text-base sm:text-lg font-bold text-white leading-relaxed my-3">
+                    Pertanyaan kuis seputar SMAN 2 Brebes...
+                </p>
 
-                <!-- Answer Options Grid -->
-                <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-6">
-                    <!-- Dynamic Answer Option Buttons injected here -->
-                </div>
-
-                <!-- Progress Bar Line -->
-                <div class="w-full bg-slate-800 h-2 rounded-full mt-6 overflow-hidden">
-                    <div id="progressBarFill" class="bg-gradient-to-r from-blue-500 to-amber-400 h-full w-0 transition-all duration-300"></div>
+                <div id="quizOptionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+                    <!-- Options injected via JS -->
                 </div>
             </div>
         </main>
 
-        <!-- VIEW 3: PARTICIPANT FINISH CONFIRMATION (LAYAR SELESAI PESERTA) -->
+        <main id="viewCardGame" class="hidden flex-1 flex-col justify-between my-auto py-2">
+            <div class="flex items-center justify-between bg-slate-900/80 p-3 rounded-2xl border border-white/10 mb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-amber-400/20 text-amber-400 rounded-xl">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xs sm:text-sm font-extrabold text-white uppercase">20 PROGRAM UNGGULAN SMAN 2 BREBES</h2>
+                        <p class="text-[11px] text-slate-300">Buka kartu untuk mempelajari deskripsi & jawab soalnya!</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Progres Kartu</span>
+                    <span id="cardProgressText" class="text-sm font-extrabold text-amber-300">0 / 20 Opened</span>
+                </div>
+            </div>
+
+            <!-- Cards Grid (5 cols x 4 rows) -->
+            <div id="cardGridContainer" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 my-auto py-2">
+                <!-- 20 Cards Injected via JS -->
+            </div>
+        </main>
+
+        <main id="viewMemoryGame" class="hidden flex-1 flex-col justify-between my-auto py-2">
+            <div class="flex flex-col space-y-2 mb-3">
+                <div class="flex items-center justify-between bg-slate-900/80 p-2 rounded-2xl border border-white/10">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1 ml-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i> Tingkat Kesulitan:
+                    </span>
+                    <div class="flex space-x-1.5">
+                        <button id="btnMemEasy" onclick="app.changeMemoryLevel('EASY')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition bg-emerald-500 text-slate-950 shadow">
+                            Mudah (6 Pair)
+                        </button>
+                        <button id="btnMemMedium" onclick="app.changeMemoryLevel('MEDIUM')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-white/10">
+                            Sedang (8 Pair)
+                        </button>
+                        <button id="btnMemHard" onclick="app.changeMemoryLevel('HARD')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-white/10">
+                            Sulit (10 Pair)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div class="glass-card p-2 rounded-2xl flex items-center space-x-2 border-l-4 border-l-blue-500">
+                        <div class="p-1.5 rounded-xl bg-blue-500/20 text-blue-400">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                        </div>
+                        <div class="truncate">
+                            <p class="text-[9px] uppercase font-bold text-slate-400">Peserta</p>
+                            <p id="memPlayerName" class="text-xs font-bold text-white truncate">Peserta</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-2 rounded-2xl flex items-center space-x-2 border-l-4 border-l-amber-400">
+                        <div class="p-1.5 rounded-xl bg-amber-400/20 text-amber-400">
+                            <i data-lucide="star" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-[9px] uppercase font-bold text-slate-400">Total Skor</p>
+                            <p id="memTotalScore" class="text-xs font-bold text-amber-300">0 Pts</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-2 rounded-2xl flex items-center space-x-2 border-l-4 border-l-emerald-400">
+                        <div class="p-1.5 rounded-xl bg-emerald-400/20 text-emerald-400">
+                            <i data-lucide="check-check" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-[9px] uppercase font-bold text-slate-400">Pasangan Ditemukan</p>
+                            <p id="memProgress" class="text-xs font-bold text-emerald-300">0 / 6</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-2 rounded-2xl flex items-center space-x-2 border-l-4 border-l-purple-400">
+                        <div class="p-1.5 rounded-xl bg-purple-400/20 text-purple-400">
+                            <i data-lucide="crosshair" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-[9px] uppercase font-bold text-slate-400">Percobaan & Akurasi</p>
+                            <p id="memAccuracyBadge" class="text-xs font-bold text-purple-300">0 Try (100%)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEMORY CARD ARENA GRID -->
+            <div class="glass-card rounded-3xl p-3 sm:p-5 border border-white/10 shadow-2xl flex-1 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                        <i data-lucide="puzzle" class="w-4 h-4"></i> ARENA MEMORY CARD - COCOKKAN NAMA & IKON PROGRAM
+                    </span>
+                    
+                    <div class="relative flex items-center justify-center w-11 h-11">
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <circle class="timer-circle-bg" cx="50" cy="50" r="42"></circle>
+                            <circle id="memTimerCircle" class="timer-circle-progress" cx="50" cy="50" r="42" 
+                                stroke="#10b981" stroke-dasharray="263.89" stroke-dashoffset="0"></circle>
+                        </svg>
+                        <span id="memTimerText" class="absolute text-xs font-extrabold text-white">60</span>
+                    </div>
+                </div>
+
+                <div id="memGridContainer" class="grid gap-2.5 my-auto py-1 grid-cols-3 sm:grid-cols-4 md:grid-cols-6">
+                    <!-- Cards Injected via JS -->
+                </div>
+            </div>
+        </main>
+
         <main id="viewParticipantFinish" class="hidden flex-1 flex-col items-center justify-center my-auto py-6">
             <div class="w-full max-w-lg glass-card rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden border border-emerald-500/30 shadow-2xl">
-                <!-- Glowing Decoration -->
                 <div class="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
                 
                 <div class="w-20 h-20 mx-auto mb-4 rounded-3xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 flex items-center justify-center animate-bounce-subtle">
-                    <i data-lucide="check-check" class="w-10 h-10"></i>
+                    <i data-lucide="award" class="w-10 h-10"></i>
                 </div>
 
-                <h2 class="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mb-2">
-                    JAWABAN TERKIRIM!
+                <h2 class="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mb-1">
+                    PERMAINAN SELESAI!
                 </h2>
-                <p class="text-slate-300 text-sm mb-6">
-                    Terima kasih <span id="finishPlayerName" class="text-amber-300 font-bold">Peserta</span>! Kamu telah menyelesaikan petualangan Amazing Race SMAN 2 Brebes.
+                <p class="text-slate-300 text-xs sm:text-sm mb-5">
+                    Hebat, <span id="finishPlayerName" class="text-amber-300 font-bold">Peserta</span>! Kamu telah menyelesaikan permainan ini.
                 </p>
 
-                <!-- Personal Summary Box -->
-                <div class="glass-light p-4 rounded-2xl mb-6 text-left space-y-3">
+                <div class="glass-light p-4 rounded-2xl mb-5 text-left space-y-2.5">
                     <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-400">Skor Akhir Perolehan:</span>
+                        <span class="text-slate-400">Total Akumulasi Skor:</span>
                         <span id="finishScore" class="font-extrabold text-amber-400 text-base">0 Pts</span>
                     </div>
                     <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-400">Jawaban Benar:</span>
+                        <span class="text-slate-400">Jawaban Benar / Selesai:</span>
                         <span id="finishCorrect" class="font-bold text-emerald-400">0 / 20</span>
                     </div>
                     <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-400">Lencana Yang Diperoleh:</span>
+                        <span class="text-slate-400">Lencana Kehormatan:</span>
                         <span id="finishBadge" class="font-bold text-blue-300 flex items-center gap-1">🏆 -</span>
                     </div>
                 </div>
 
-                <div class="bg-blue-900/40 border border-blue-500/30 p-3.5 rounded-2xl text-xs text-blue-200 mb-6 flex items-start gap-2 text-left">
-                    <i data-lucide="info" class="w-5 h-5 text-blue-400 shrink-0 mt-0.5"></i>
-                    <span>Hasil & peringkat akhir seluruh peserta dikelola dan diumumkan langsung oleh <strong>Admin / Guru Pengampu</strong>.</span>
+                <div class="bg-blue-900/40 border border-blue-500/30 p-3 rounded-2xl text-xs text-blue-200 mb-5 flex items-start gap-2 text-left">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-400 shrink-0 mt-0.5"></i>
+                    <span>Skor Anda telah tersimpan secara otomatis. Anda dapat mencoba mode lain atau melihat rekap melalui Admin Guru.</span>
                 </div>
 
-                <button onclick="app.backToLogin()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-black text-sm uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
-                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i> Kembali Ke Menu Utama
-                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <button onclick="app.switchGameModeAndPlay()" class="py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-black text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="play-circle" class="w-4 h-4"></i> <span id="btnSwitchModeText">Coba Mode Lain</span>
+                    </button>
+                    <button onclick="app.backToLogin()" class="py-3.5 rounded-2xl glass-light hover:bg-white/20 text-slate-200 font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="home" class="w-4 h-4"></i> Menu Utama
+                    </button>
+                </div>
             </div>
         </main>
 
-        <!-- VIEW 4: ADMIN DASHBOARD VIEW (KHUSUS ADMIN/GURU) -->
-        <main id="viewAdminDashboard" class="hidden flex-1 flex-col my-auto py-4 space-y-6">
-            <!-- Admin Dashboard Header Bar -->
-            <div class="glass-card rounded-3xl p-5 border border-amber-400/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <main id="viewAdminDashboard" class="hidden flex-1 flex-col my-auto py-4 space-y-5">
+            <div class="glass-card rounded-3xl p-5 border border-amber-400/30 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="flex items-center space-x-3">
                     <div class="p-3 bg-amber-400/20 text-amber-400 rounded-2xl border border-amber-400/30">
-                        <i data-lucide="layout-dashboard" class="w-7 h-7"></i>
+                        <i data-lucide="shield-check" class="w-7 h-7"></i>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-white uppercase tracking-wider">PANEL KELOLA ADMIN & GURU</h2>
-                        <p class="text-xs text-amber-300">Rekapitulasi Nilai & Peringkat Peserta SMAN 2 Brebes</p>
+                        <h2 class="text-lg sm:text-xl font-black text-white uppercase tracking-wider">PANEL KELOLA ADMIN GURU</h2>
+                        <p class="text-xs text-amber-300">Rekapitulasi Nilai Peserta & Kelola Program Unggulan SMAN 2 Brebes</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <button onclick="app.exportCSV()" class="flex-1 sm:flex-none py-2.5 px-4 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400/40 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
-                        <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+
+                <div class="flex bg-slate-900/90 p-1 rounded-2xl border border-white/10 w-full md:w-auto">
+                    <button id="admTabResultsBtn" onclick="app.switchAdminTab('RESULTS')" class="flex-1 md:flex-none px-3 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow transition flex items-center justify-center gap-1">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Rekap Hasil
                     </button>
-                    <button onclick="app.confirmClearData()" class="flex-1 sm:flex-none py-2.5 px-4 rounded-xl bg-red-600/30 hover:bg-red-600/50 border border-red-400/40 text-red-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> Reset Data
+                    <button id="admTabCardsBtn" onclick="app.switchAdminTab('CARDS')" class="flex-1 md:flex-none px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition flex items-center justify-center gap-1">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> Kelola Program
+                    </button>
+                    <button id="admTabMemoryBtn" onclick="app.switchAdminTab('MEMORY')" class="flex-1 md:flex-none px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition flex items-center justify-center gap-1">
+                        <i data-lucide="puzzle" class="w-4 h-4"></i> Memory Card
                     </button>
                 </div>
             </div>
 
-            <!-- ADMIN STAT CARDS -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-blue-500">
-                    <div class="p-2.5 rounded-xl bg-blue-500/20 text-blue-400">
-                        <i data-lucide="users" class="w-5 h-5"></i>
+            <!-- ADMIN SUB-VIEW 1: REKAP HASIL -->
+            <div id="admSectionResults" class="space-y-5">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-blue-500">
+                        <div class="p-2.5 rounded-xl bg-blue-500/20 text-blue-400">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400">Total Peserta</p>
+                            <p id="admStatTotal" class="text-lg sm:text-2xl font-black text-white">0</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Total Peserta</p>
-                        <p id="admStatTotal" class="text-lg sm:text-2xl font-black text-white">0</p>
+
+                    <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-amber-400">
+                        <div class="p-2.5 rounded-xl bg-amber-400/20 text-amber-400">
+                            <i data-lucide="trophy" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400">Skor Tertinggi</p>
+                            <p id="admStatTopScore" class="text-lg sm:text-2xl font-black text-amber-300">0</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-purple-500">
+                        <div class="p-2.5 rounded-xl bg-purple-500/20 text-purple-400">
+                            <i data-lucide="calculator" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400">Rata-Rata Skor</p>
+                            <p id="admStatAvgScore" class="text-lg sm:text-2xl font-black text-purple-300">0</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-emerald-400">
+                        <div class="p-2.5 rounded-xl bg-emerald-400/20 text-emerald-400">
+                            <i data-lucide="percent" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400">Rata2 Akurasi</p>
+                            <p id="admStatAccuracy" class="text-lg sm:text-2xl font-black text-emerald-300">0%</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-amber-400">
-                    <div class="p-2.5 rounded-xl bg-amber-400/20 text-amber-400">
-                        <i data-lucide="trophy" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Skor Tertinggi</p>
-                        <p id="admStatTopScore" class="text-lg sm:text-2xl font-black text-amber-300">0</p>
-                    </div>
-                </div>
-
-                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-purple-500">
-                    <div class="p-2.5 rounded-xl bg-purple-500/20 text-purple-400">
-                        <i data-lucide="calculator" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Rata-Rata Skor</p>
-                        <p id="admStatAvgScore" class="text-lg sm:text-2xl font-black text-purple-300">0</p>
-                    </div>
-                </div>
-
-                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-emerald-400">
-                    <div class="p-2.5 rounded-xl bg-emerald-400/20 text-emerald-400">
-                        <i data-lucide="percent" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Rata2 Akurasi</p>
-                        <p id="admStatAccuracy" class="text-lg sm:text-2xl font-black text-emerald-300">0%</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PODIUM 3 BESAR SELEKSI ADMIN -->
-            <div class="glass-card rounded-3xl p-6 border border-white/10">
-                <h3 class="text-center font-extrabold text-sm uppercase tracking-widest text-amber-400 mb-6 flex items-center justify-center gap-2">
-                    <i data-lucide="crown" class="w-5 h-5"></i> PODIUM JUARA UTAMA
-                </h3>
-                <div id="admPodiumContainer" class="flex justify-center items-end gap-2 sm:gap-6 min-h-[160px] pt-4">
-                    <!-- Injected 2nd, 1st, 3rd podium pillars dynamically -->
-                </div>
-            </div>
-
-            <!-- DETAIL TABEL LEADERBOARD PESERTA -->
-            <div class="glass-card rounded-3xl p-5 border border-white/10 space-y-4">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <h3 class="font-bold text-sm text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="list" class="w-4 h-4 text-blue-400"></i> Rekapitulasi Hasil Jawaban Seluruh Peserta
+                <!-- PODIUM 3 BESAR JUARA -->
+                <div class="glass-card rounded-3xl p-6 border border-white/10">
+                    <h3 class="text-center font-extrabold text-sm uppercase tracking-widest text-amber-400 mb-6 flex items-center justify-center gap-2">
+                        <i data-lucide="crown" class="w-5 h-5"></i> PODIUM JUARA UTAMA
                     </h3>
-
-                    <!-- Search Filter Bar -->
-                    <div class="relative w-full sm:w-64">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <i data-lucide="search" class="w-4 h-4"></i>
-                        </span>
-                        <input type="text" id="inputSearchAdmin" oninput="app.filterAdminTable()" placeholder="Cari nama peserta..."
-                            class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <div id="admPodiumContainer" class="flex justify-center items-end gap-2 sm:gap-6 min-h-[160px] pt-4">
+                        <!-- Injected Podium Pillars -->
                     </div>
                 </div>
 
-                <!-- Table Container -->
-                <div class="overflow-x-auto rounded-2xl border border-white/10">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-900/90 text-amber-300 font-extrabold border-b border-white/10 uppercase tracking-wider">
-                                <th class="p-3 text-center">Rank</th>
-                                <th class="p-3">Nama Peserta</th>
-                                <th class="p-3 text-center">Skor</th>
-                                <th class="p-3 text-center">Benar / Salah</th>
-                                <th class="p-3 text-center">Akurasi</th>
-                                <th class="p-3">Lencana Kehormatan</th>
-                                <th class="p-3">Tanggal Selesai</th>
-                                <th class="p-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admTableBody" class="divide-y divide-white/5 text-slate-300 font-medium">
-                            <!-- Injected Table Rows Dynamically -->
-                        </tbody>
-                    </table>
+                <!-- DETAIL TABEL LEADERBOARD -->
+                <div class="glass-card rounded-3xl p-5 border border-white/10 space-y-4">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <h3 class="font-bold text-sm text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="list" class="w-4 h-4 text-blue-400"></i> Rekapitulasi Hasil Seluruh Peserta
+                        </h3>
+
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <input type="text" id="inputSearchAdmin" oninput="app.filterAdminTable()" placeholder="Cari nama peserta..."
+                                class="w-full sm:w-48 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <button onclick="app.exportCSV()" class="py-2 px-3 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400/40 text-emerald-300 font-bold text-xs flex items-center gap-1 shrink-0">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> Export
+                            </button>
+                            <button onclick="app.confirmClearData()" class="py-2 px-3 rounded-xl bg-red-600/30 hover:bg-red-600/50 border border-red-400/40 text-red-300 font-bold text-xs flex items-center gap-1 shrink-0">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-white/10">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-900/90 text-amber-300 font-extrabold border-b border-white/10 uppercase tracking-wider">
+                                    <th class="p-3 text-center">Rank</th>
+                                    <th class="p-3">Nama Peserta</th>
+                                    <th class="p-3 text-center">Skor Akhir</th>
+                                    <th class="p-3 text-center">Benar / Salah</th>
+                                    <th class="p-3 text-center">Akurasi</th>
+                                    <th class="p-3">Lencana Utama</th>
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admTableBody" class="divide-y divide-white/5 text-slate-300 font-medium">
+                                <!-- Dynamic Table Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CHART ANALYTICS -->
+                <div class="glass-card rounded-3xl p-5 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex-1 space-y-2">
+                        <h4 class="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-4 h-4 text-amber-400"></i> Distribusi Jawaban Seluruh Peserta
+                        </h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Grafik donut memvisualisasikan perbandingan akumulasi total jawaban benar vs salah dari seluruh peserta.
+                        </p>
+                    </div>
+                    <div class="relative w-36 h-36 shrink-0">
+                        <canvas id="admStatsChart" width="140" height="140"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <!-- GRAPH CHART ANALYTICS -->
-            <div class="glass-card rounded-3xl p-5 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex-1 space-y-2">
-                    <h4 class="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="w-4 h-4 text-amber-400"></i> Distribusi Performa Keseluruhan
-                    </h4>
-                    <p class="text-xs text-slate-400">
-                        Grafik memvisualisasikan perbandingan akumulasi total jawaban benar vs salah dari seluruh peserta yang pernah bermain.
-                    </p>
+            <!-- ADMIN SUB-VIEW 2: KELOLA PROGRAM UNGGULAN -->
+            <div id="admSectionCards" class="hidden space-y-4">
+                <div class="glass-card rounded-3xl p-5 border border-white/10 space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                        <div>
+                            <h3 class="font-bold text-base text-white uppercase tracking-wider flex items-center gap-2">
+                                <i data-lucide="book-open" class="w-5 h-5 text-amber-400"></i> Daftar 20 Program Unggulan
+                            </h3>
+                            <p class="text-xs text-slate-400">Atur rincian deskripsi, tujuan, manfaat & soal kuis program sekolah.</p>
+                        </div>
+                        <button onclick="app.openAddProgramModal()" class="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase shadow transition flex items-center gap-1.5">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Program Baru
+                        </button>
+                    </div>
+
+                    <div id="admCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <!-- Injected via JS -->
+                    </div>
                 </div>
-                <div class="relative w-40 h-40 shrink-0">
-                    <canvas id="admStatsChart" width="160" height="160"></canvas>
+            </div>
+
+            <!-- ADMIN SUB-VIEW 3: KELOLA MEMORY CARD -->
+            <div id="admSectionMemory" class="hidden space-y-4">
+                <div class="glass-card rounded-3xl p-5 border border-white/10 space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                        <div>
+                            <h3 class="font-bold text-base text-white uppercase tracking-wider flex items-center gap-2">
+                                <i data-lucide="puzzle" class="w-5 h-5 text-amber-400"></i> Kelola Pasangan Memory Card Program
+                            </h3>
+                            <p class="text-xs text-slate-400">Atur rincian Pasangan Nama Program & Ikon Visual untuk Mini Game Memory Card.</p>
+                        </div>
+                        <button onclick="app.resetDefaultMemoryPairs()" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/10 font-bold text-xs flex items-center gap-1">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reset Default Pasangan
+                        </button>
+                    </div>
+
+                    <div id="admMemoryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <!-- Injected via JS -->
+                    </div>
                 </div>
             </div>
 
@@ -509,6 +709,130 @@
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Keluar Dari Mode Admin
             </button>
         </main>
+
+        <!-- MODAL MATCH MEMORY CARD POPUP -->
+        <div id="modalMemoryMatch" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+            <div class="glass-card max-w-md w-full rounded-3xl p-6 border border-emerald-400/40 shadow-2xl relative text-left animate-card-pop">
+                <div class="flex items-center space-x-3 border-b border-white/10 pb-3 mb-3">
+                    <div id="memMatchIcon" class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 flex items-center justify-center text-xl">
+                        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-400/30">
+                            ✨ PASANGAN COCOK! (+100 PTS)
+                        </span>
+                        <h3 id="memMatchTitle" class="text-lg font-black text-white leading-tight mt-0.5">
+                            Nama Program
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 text-xs text-slate-200 mb-5">
+                    <p id="memMatchDesc" class="bg-slate-900/60 p-3 rounded-xl border border-white/5 leading-relaxed">
+                        Deskripsi singkat program unggulan...
+                    </p>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-blue-500/20">
+                        <span class="font-bold text-blue-400 block mb-0.5">🎯 Tujuan:</span>
+                        <p id="memMatchGoal" class="text-[11px] text-slate-300">Tujuan program...</p>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-amber-500/20">
+                        <span class="font-bold text-amber-400 block mb-0.5">💡 Manfaat:</span>
+                        <p id="memMatchBenefit" class="text-[11px] text-slate-300">Manfaat program...</p>
+                    </div>
+                </div>
+
+                <button onclick="app.closeMemoryMatchModal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-amber-500 hover:from-emerald-500 hover:to-amber-400 text-white font-extrabold text-xs uppercase shadow transition flex items-center justify-center gap-1">
+                    <span>LANJUTKAN PERMAINAN</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL 1: PROGRAM UNGGULAN INFO MODAL -->
+        <div id="modalProgramDetail" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+            <div class="glass-card max-w-lg w-full rounded-3xl p-6 border border-amber-400/40 shadow-2xl relative animate-card-pop text-left my-auto">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div id="pDetailIconBox" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-amber-400 p-0.5 flex items-center justify-center text-white">
+                            <i data-lucide="book-open" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-md border border-amber-400/30">
+                                Program Unggulan SMANDA
+                            </span>
+                            <h3 id="pDetailTitle" class="text-lg font-black text-white leading-tight mt-0.5">
+                                Nama Program
+                            </h3>
+                        </div>
+                    </div>
+                    <button onclick="app.closeProgramDetailModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div id="pDetailVisual" class="w-full h-32 rounded-2xl bg-gradient-to-r from-blue-900/60 via-indigo-900/60 to-slate-900 border border-white/10 flex flex-col items-center justify-center p-4 mb-4 text-center">
+                    <i data-lucide="sparkles" class="w-10 h-10 text-amber-400 mb-1"></i>
+                    <p class="text-xs font-bold text-blue-200">SMAN 2 BREBES - UNGGUL & BERKARAKTER</p>
+                </div>
+
+                <div class="space-y-3 text-xs leading-relaxed text-slate-200 mb-6">
+                    <div>
+                        <h4 class="font-extrabold text-amber-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                            <i data-lucide="info" class="w-4 h-4"></i> Deskripsi Program
+                        </h4>
+                        <p id="pDetailDescription" class="bg-slate-900/60 p-3 rounded-xl border border-white/5">
+                            Deskripsi singkat program...
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-blue-500/20">
+                            <h4 class="font-bold text-blue-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                <i data-lucide="target" class="w-3.5 h-3.5"></i> Tujuan
+                            </h4>
+                            <p id="pDetailGoal" class="text-[11px] text-slate-300">Tujuan program...</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-emerald-500/20">
+                            <h4 class="font-bold text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Manfaat
+                            </h4>
+                            <p id="pDetailBenefit" class="text-[11px] text-slate-300">Manfaat program...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="app.proceedToProgramQuiz()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-black text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2 group">
+                    <span>LANJUTKAN KE SOAL KUIS (+100 PTS)</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL 2: PROGRAM QUIZ QUESTION POPUP -->
+        <div id="modalProgramQuiz" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+            <div class="glass-card max-w-lg w-full rounded-3xl p-6 border border-blue-500/40 shadow-2xl relative animate-card-pop text-left">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span id="pQuizBadge" class="text-[10px] font-extrabold uppercase bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded-md border border-blue-500/30">
+                            Kuis Program Unggulan
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-amber-400/40">
+                        <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                        <span id="pQuizTimer" class="text-sm font-black text-amber-300">15s</span>
+                    </div>
+                </div>
+
+                <p id="pQuizQuestion" class="text-sm sm:text-base font-bold text-white leading-relaxed my-3">
+                    Pertanyaan soal kuis program unggulan?
+                </p>
+
+                <div id="pQuizOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                    <!-- Dynamic Answer Option Buttons -->
+                </div>
+            </div>
+        </div>
 
         <!-- MODAL: PIN VERIFICATION UNTUK ADMIN -->
         <div id="modalAdminAuth" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
@@ -518,12 +842,12 @@
                         <i data-lucide="lock" class="w-8 h-8"></i>
                     </div>
                     <h3 class="text-lg font-black text-white uppercase tracking-wide">VERIFIKASI ADMIN GURU</h3>
-                    <p class="text-xs text-slate-300">Masukkan Kode PIN Admin untuk mengakses hasil</p>
+                    <p class="text-xs text-slate-300">Masukkan PIN Admin (Default: 1234)</p>
                 </div>
 
                 <form onsubmit="app.verifyAdminPin(event)" class="space-y-4">
                     <div>
-                        <input type="password" id="inputAdminPin" placeholder="Masukkan Kode PIN (Default: 1234)" 
+                        <input type="password" id="inputAdminPin" placeholder="PIN Admin..." 
                             class="w-full px-4 py-3 rounded-2xl bg-slate-900/90 border border-slate-700 text-center text-lg font-bold text-amber-300 placeholder-slate-500 tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-400">
                         <p id="adminPinError" class="hidden text-xs text-red-400 text-center font-medium mt-1">PIN Salah! Coba lagi.</p>
                     </div>
@@ -533,7 +857,94 @@
                             Batal
                         </button>
                         <button type="submit" class="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase shadow-lg">
-                            Masuk Admin
+                            Masuk
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL: TAMBAH / EDIT PROGRAM UNGGULAN (ADMIN) -->
+        <div id="modalProgramCrud" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+            <div class="glass-card max-w-lg w-full rounded-3xl p-6 border border-blue-500/30 shadow-2xl my-8 text-left">
+                <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+                    <h3 id="modalProgramCrudTitle" class="text-base font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-5 h-5 text-amber-400"></i> Tambah / Edit Program Unggulan
+                    </h3>
+                    <button onclick="app.closeProgramCrudModal()" class="text-slate-400 hover:text-white">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form onsubmit="app.saveProgramData(event)" class="space-y-3 text-xs">
+                    <input type="hidden" id="editProgramId" value="">
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Nama Program Unggulan</label>
+                        <input type="text" id="pInputProgram" required placeholder="Contoh: Literasi Sekolah"
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:ring-1 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Nama Ikon Lucide</label>
+                        <input type="text" id="pInputIcon" required placeholder="book-open / trophy / sparkles / calculator"
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:ring-1 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Deskripsi Singkat Program (Max 3 kalimat)</label>
+                        <textarea id="pInputDescription" rows="2" required placeholder="Program yang membangun budaya membaca dan menulis..."
+                            class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:ring-1 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Tujuan Program</label>
+                            <input type="text" id="pInputGoal" required placeholder="Meningkatkan kemampuan literasi..."
+                                class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Manfaat Program</label>
+                            <input type="text" id="pInputBenefit" required placeholder="Menumbuhkan kebiasaan membaca..."
+                                class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-white/10 pt-3 space-y-2">
+                        <label class="block font-bold text-amber-300">Pertanyaan Kuis Program</label>
+                        <textarea id="pInputQuestion" rows="2" required placeholder="Program yang bertujuan meningkatkan budaya membaca adalah..."
+                            class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:ring-1 focus:ring-blue-500"></textarea>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Pilihan A (Jawaban Benar)</label>
+                                <input type="text" id="pInputOptA" required placeholder="Jawaban Benar"
+                                    class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-emerald-500/50 text-emerald-300 placeholder-slate-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Pilihan B (Pilihan Salah)</label>
+                                <input type="text" id="pInputOptB" required placeholder="Pilihan Salah 1"
+                                    class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Pilihan C (Pilihan Salah)</label>
+                                <input type="text" id="pInputOptC" required placeholder="Pilihan Salah 2"
+                                    class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Pilihan D (Pilihan Salah)</label>
+                                <input type="text" id="pInputOptD" required placeholder="Pilihan Salah 3"
+                                    class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 flex space-x-2">
+                        <button type="button" onclick="app.closeProgramCrudModal()" class="flex-1 py-3 rounded-xl glass-light hover:bg-white/10 text-slate-300 font-bold uppercase">
+                            Batal
+                        </button>
+                        <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-amber-500 text-white font-black uppercase shadow-lg">
+                            Simpan Program
                         </button>
                     </div>
                 </form>
@@ -542,215 +953,11 @@
 
         <!-- FOOTER -->
         <footer class="py-3 text-center text-[11px] text-slate-400 font-medium">
-            &copy; 2026 SMAN 2 Brebes. All rights reserved. Game Edukasi Interaktif SMAN 2 Brebes.
+            &copy; 2026 SMAN 2 Brebes. All rights reserved. Game Edukasi Interaktif Program Unggulan SMAN 2 Brebes.
         </footer>
     </div>
 
     <script>
-        // 20 AUTHENTIC QUESTIONS ABOUT SMAN 2 BREBES
-        const QUESTIONS_DATA = [
-            {
-                id: 1,
-                category: "Profil Sekolah",
-                question: "Apa julukan populer dan kebanggaan dari SMAN 2 Brebes?",
-                options: ["Smanda Brebes", "Smarza Brebes", "Smasa Brebes", "Smanti Brebes"],
-                answer: 0
-            },
-            {
-                id: 2,
-                category: "Sejarah Sekolah",
-                question: "SMAN 2 Brebes didirikan untuk memenuhi kebutuhan pendidikan menengah berkualitas tinggi di Kabupaten Brebes pada tahun...",
-                options: ["1984", "1978", "1990", "1995"],
-                answer: 0
-            },
-            {
-                id: 3,
-                category: "Budaya Sekolah",
-                question: "Budaya 5S yang senantiasa diterapkan oleh warga SMAN 2 Brebes adalah...",
-                options: [
-                    "Senyum, Sapa, Salam, Sopan, Santun",
-                    "Semangat, Setia, Santun, Sapta, Sukses",
-                    "Salam, Sehat, Selamat, Santun, Sigap",
-                    "Senyum, Santai, Serius, Sukses, Sohor"
-                ],
-                answer: 0
-            },
-            {
-                id: 4,
-                category: "Fasilitas",
-                question: "Fasilitas perpustakaan digital dan ruang baca nyaman di SMAN 2 Brebes dirancang untuk mendukung program...",
-                options: ["Literasi Sekolah", "Ekskul Otomotif", "Pentas Seni", "Olimpiade Olahraga"],
-                answer: 0
-            },
-            {
-                id: 5,
-                category: "Digitalisasi",
-                question: "Wujud nyata digitalisasi sekolah di SMAN 2 Brebes terlihat dalam penerapan...",
-                options: [
-                    "Ujian Berbasis Komputer/CBT & Presensi Digital",
-                    "Papan tulis kapur tradisional",
-                    "Surat-menyurat manual tanpa email",
-                    "Pengumuman dengan pengeras suara saja"
-                ],
-                answer: 0
-            },
-            {
-                id: 6,
-                category: "Prestasi",
-                question: "Siswa SMAN 2 Brebes sering mengukir prestasi gemilang hingga tingkat provinsi & nasional dalam ajang...",
-                options: [
-                    "KSN (Kompetisi Sains Nasional) & O2SN",
-                    "Lomba balap liar",
-                    "Kompetisi E-Sport ilegal",
-                    "Festival Kuliner Tradisional"
-                ],
-                answer: 0
-            },
-            {
-                id: 7,
-                category: "Ekstrakurikuler",
-                question: "Ekstrakurikuler Wajib yang membentuk kedisiplinan dan karakter kepemimpinan siswa di SMA adalah...",
-                options: ["Pramuka", "PMR", "Paskibra", "KIR"],
-                answer: 0
-            },
-            {
-                id: 8,
-                category: "Program Sekolah",
-                question: "Program sekolah adiwiyata bertujuan untuk mewujudkan lingkungan SMAN 2 Brebes yang...",
-                options: [
-                    "Bersih, Hijau, Asri, dan Berwawasan Lingkungan",
-                    "Penuh dengan gedung pencakar langit",
-                    "Mewah dan serba tertutup",
-                    "Khusus untuk area industri"
-                ],
-                answer: 0
-            },
-            {
-                id: 9,
-                category: "Guru & Staf",
-                question: "Peran utama Bapak/Ibu Guru Inspiratif di SMAN 2 Brebes tidak hanya mengajar, tetapi juga...",
-                options: [
-                    "Membimbing, menuntun karakter, dan mendampingi potensi siswa",
-                    "Hanya memberikan tugas tanpa evaluasi",
-                    "Mengatur jadwal angkutan umum",
-                    "Menjaga gerbang utama setiap jam"
-                ],
-                answer: 0
-            },
-            {
-                id: 10,
-                category: "Kegiatan Sekolah",
-                question: "Kegiatan tahunan yang menjadi wadah kebolehan bakat seni dan kreasi siswa SMAN 2 Brebes adalah...",
-                options: [
-                    "Pentas Seni (Pensi) & Panen Karya P5",
-                    "Bazar Murah Kecamatan",
-                    "Kerja Bakti Antar Desa",
-                    "Kunjungan Industri Luar Negeri"
-                ],
-                answer: 0
-            },
-            {
-                id: 11,
-                category: "Profil Sekolah",
-                question: "Warna utama yang mencerminkan ketenangan, keunggulan, dan kejayaan pada identitas SMAN 2 Brebes adalah...",
-                options: ["Biru & Emas", "Merah & Hitam", "Hijau & Merah", "Ungu & Cokelat"],
-                answer: 0
-            },
-            {
-                id: 12,
-                category: "Fasilitas",
-                question: "Laboratorium yang digunakan siswa SMAN 2 Brebes untuk praktik pengamatan sel dan reaksi kimia adalah...",
-                options: [
-                    "Laboratorium IPA (Biologi/Kimia/Fisika)",
-                    "Laboratorium Bahasa Asing",
-                    "Bengkel Las",
-                    "Ruang Karawitan"
-                ],
-                answer: 0
-            },
-            {
-                id: 13,
-                category: "Budaya Sekolah",
-                question: "Slogan pembelajaran Kurikulum Merdeka yang dijunjung di SMAN 2 Brebes menekankan pada profil...",
-                options: [
-                    "Pelajar Pancasila",
-                    "Siswa Serba Bisa",
-                    "Generasi Emas Tanpa Batas",
-                    "Pemuda Mandiri Cerdas"
-                ],
-                answer: 0
-            },
-            {
-                id: 14,
-                category: "Ekstrakurikuler",
-                question: "Wadah bagi siswa SMAN 2 Brebes yang berminat pada bidang penelitian ilmiah dan karya tulis adalah...",
-                options: [
-                    "KIR (Kelompok Ilmiah Remaja)",
-                    "Paskibraka",
-                    "Pencak Silat",
-                    "Teater Sekolah"
-                ],
-                answer: 0
-            },
-            {
-                id: 15,
-                category: "Kegiatan Sekolah",
-                question: "Upacara Bendera di SMAN 2 Brebes rutin dilaksanakan setiap hari Senin untuk menanamkan jiwa...",
-                options: ["Nasionalisme & Cinta Tanah Air", "Keberanian Bertarung", "Sikap Individualis", "Kompetisi Ketat"],
-                answer: 0
-            },
-            {
-                id: 16,
-                category: "Digitalisasi",
-                question: "Platform atau media utama yang digunakan untuk membagikan informasi resmi dan prestasi SMAN 2 Brebes adalah...",
-                options: [
-                    "Website Resmi Sekolah & Media Sosial Resmi",
-                    "Mading Kertas Pasar",
-                    "Brochure Cetak Harian",
-                    "Pesan Singkat Radio Lokal"
-                ],
-                answer: 0
-            },
-            {
-                id: 17,
-                category: "Program Sekolah",
-                question: "Program Bimbingan Konseling (BK) di SMAN 2 Brebes berfokus membantu siswa dalam...",
-                options: [
-                    "Pengembangan diri, karir studi lanjut, dan pemecahan masalah",
-                    "Pembersihan area taman",
-                    "Pembayaran pendaftaran ulang",
-                    "Penjualan perlengkapan sekolah"
-                ],
-                answer: 0
-            },
-            {
-                id: 18,
-                category: "Prestasi",
-                question: "Tim olahraga SMAN 2 Brebes sering menorehkan kebanggaan dalam cabang olahraga...",
-                options: ["Bola Basket & Futsal", "Formula 1", "Ski Es", "Golf Profesional"],
-                answer: 0
-            },
-            {
-                id: 19,
-                category: "Budaya Sekolah",
-                question: "Karakter utama yang terus ditanamkan di Smanda Brebes agar siswa siap menghadapi masa depan adalah...",
-                options: [
-                    "Beriman, Bertakwa, Cerdas, & Berkarakter Mulia",
-                    "Apatis dan Menutup Diri",
-                    "Menghalalkan Segala Cara",
-                    "Pasrah Tanpa Usaha"
-                ],
-                answer: 0
-            },
-            {
-                id: 20,
-                category: "Profil Sekolah",
-                question: "Lulusan SMAN 2 Brebes banyak diterima di berbagai PTN favorit Indonesia melalui jalur...",
-                options: ["SNBP, SNBT, & Mandiri PTN", "Jalur Khusus Tanpa Tes", "Undangan Langsung Kerja", "Beasiswa Luar Negeri Tanpa Seleksi"],
-                answer: 0
-            }
-        ];
-
         class SoundEngine {
             constructor() {
                 this.ctx = null;
@@ -786,16 +993,30 @@
                 } catch(e) {}
             }
 
-            playClick() {
-                this.playTone(800, 'sine', 0.08, 0.15);
+            playClick() { this.playTone(800, 'sine', 0.08, 0.15); }
+
+            playCardFlip() {
+                if (this.sfxMuted) return;
+                try {
+                    this.initCtx();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(700, this.ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.15);
+                } catch(e) {}
             }
 
             playCorrect() {
                 if (this.sfxMuted) return;
-                [523.25, 659.25, 783.99, 1046.50].forEach((freq, index) => {
-                    setTimeout(() => {
-                        this.playTone(freq, 'triangle', 0.2, 0.25);
-                    }, index * 70);
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 'triangle', 0.2, 0.25), idx * 70);
                 });
             }
 
@@ -817,22 +1038,15 @@
                 } catch(e) {}
             }
 
-            playTick() {
-                this.playTone(1200, 'sine', 0.04, 0.08);
-            }
+            playTick() { this.playTone(1200, 'sine', 0.04, 0.08); }
 
             playVictoryFanfare() {
                 if (this.sfxMuted) return;
-                const notes = [
-                    {f: 523.25, d: 0.15}, {f: 659.25, d: 0.15}, {f: 783.99, d: 0.15},
-                    {f: 1046.50, d: 0.4}, {f: 880, d: 0.2}, {f: 1046.50, d: 0.6}
-                ];
+                const notes = [{f: 523.25, d: 0.15}, {f: 659.25, d: 0.15}, {f: 783.99, d: 0.15}, {f: 1046.50, d: 0.4}, {f: 880, d: 0.2}, {f: 1046.50, d: 0.6}];
                 let time = 0;
-                notes.forEach(note => {
-                    setTimeout(() => {
-                        this.playTone(note.f, 'triangle', note.d, 0.3);
-                    }, time);
-                    time += note.d * 1000;
+                notes.forEach(n => {
+                    setTimeout(() => this.playTone(n.f, 'triangle', n.d, 0.3), time);
+                    time += n.d * 1000;
                 });
             }
 
@@ -843,8 +1057,7 @@
                 let step = 0;
                 this.bgmInterval = setInterval(() => {
                     if (this.bgmMuted) return;
-                    const freq = scale[step % scale.length];
-                    this.playTone(freq, 'sine', 0.3, 0.03, 0.001);
+                    this.playTone(scale[step % scale.length], 'sine', 0.3, 0.03, 0.001);
                     step++;
                 }, 400);
             }
@@ -866,39 +1079,27 @@
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
             }
-
             resize() {
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight;
             }
-
             burst() {
                 const colors = ['#3b82f6', '#fbbf24', '#34d399', '#f43f5e', '#a855f7'];
-                for (let i = 0; i < 120; i++) {
+                for (let i = 0; i < 140; i++) {
                     this.particles.push({
-                        x: this.canvas.width / 2,
-                        y: this.canvas.height / 2,
-                        vx: (Math.random() - 0.5) * 16,
-                        vy: (Math.random() - 0.7) * 16,
-                        size: Math.random() * 8 + 4,
-                        color: colors[Math.floor(Math.random() * colors.length)],
-                        rotation: Math.random() * 360,
-                        vRot: (Math.random() - 0.5) * 10,
-                        life: 1
+                        x: this.canvas.width / 2, y: this.canvas.height / 2,
+                        vx: (Math.random() - 0.5) * 18, vy: (Math.random() - 0.7) * 18,
+                        size: Math.random() * 8 + 4, color: colors[Math.floor(Math.random() * colors.length)],
+                        rotation: Math.random() * 360, vRot: (Math.random() - 0.5) * 10, life: 1
                     });
                 }
                 if (!this.animId) this.animate();
             }
-
             animate() {
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.particles.forEach((p, idx) => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.3;
-                    p.rotation += p.vRot;
-                    p.life -= 0.012;
-
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.3;
+                    p.rotation += p.vRot; p.life -= 0.012;
                     this.ctx.save();
                     this.ctx.translate(p.x, p.y);
                     this.ctx.rotate((p.rotation * Math.PI) / 180);
@@ -906,15 +1107,10 @@
                     this.ctx.globalAlpha = Math.max(0, p.life);
                     this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
                     this.ctx.restore();
-
                     if (p.life <= 0) this.particles.splice(idx, 1);
                 });
-
-                if (this.particles.length > 0) {
-                    this.animId = requestAnimationFrame(() => this.animate());
-                } else {
-                    this.animId = null;
-                }
+                if (this.particles.length > 0) this.animId = requestAnimationFrame(() => this.animate());
+                else this.animId = null;
             }
         }
 
@@ -927,35 +1123,26 @@
                 this.init();
                 window.addEventListener('resize', () => this.resize());
             }
-
             resize() {
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight;
             }
-
             init() {
                 this.dots = [];
-                for (let i = 0; i < 45; i++) {
+                for (let i = 0; i < 40; i++) {
                     this.dots.push({
-                        x: Math.random() * this.canvas.width,
-                        y: Math.random() * this.canvas.height,
-                        r: Math.random() * 2 + 1,
-                        vx: (Math.random() - 0.5) * 0.5,
-                        vy: (Math.random() - 0.5) * 0.5,
-                        alpha: Math.random() * 0.5 + 0.2
+                        x: Math.random() * this.canvas.width, y: Math.random() * this.canvas.height,
+                        r: Math.random() * 2 + 1, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.2
                     });
                 }
                 this.animate();
             }
-
             animate() {
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.dots.forEach(d => {
-                    d.x += d.vx;
-                    d.y += d.vy;
+                    d.x += d.vx; d.y += d.vy;
                     if (d.x < 0 || d.x > this.canvas.width) d.vx *= -1;
                     if (d.y < 0 || d.y > this.canvas.height) d.vy *= -1;
-
                     this.ctx.beginPath();
                     this.ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
                     this.ctx.fillStyle = `rgba(147, 197, 253, ${d.alpha})`;
@@ -965,13 +1152,76 @@
             }
         }
 
+        // STATIC QUESTION BANK FOR AMAZING RACE
+        const QUESTIONS_RACE = [
+            { id: 1, category: "Profil Sekolah", question: "Apa julukan populer dan kebanggaan dari SMAN 2 Brebes?", options: ["Smanda Brebes", "Smarza Brebes", "Smasa Brebes", "Smanti Brebes"], answer: 0 },
+            { id: 2, category: "Sejarah Sekolah", question: "SMAN 2 Brebes didirikan untuk memenuhi kebutuhan pendidikan berkualitas tinggi di Brebes pada tahun...", options: ["1984", "1978", "1990", "1995"], answer: 0 },
+            { id: 3, category: "Budaya Sekolah", question: "Budaya 5S yang senantiasa diterapkan oleh warga SMAN 2 Brebes adalah...", options: ["Senyum, Sapa, Salam, Sopan, Santun", "Semangat, Setia, Santun, Sapta, Sukses", "Salam, Sehat, Selamat, Santun, Sigap", "Senyum, Santai, Serius, Sukses, Sohor"], answer: 0 },
+            { id: 4, category: "Fasilitas", question: "Fasilitas perpustakaan digital dan ruang baca nyaman di SMAN 2 Brebes dirancang untuk mendukung program...", options: ["Literasi Sekolah", "Ekskul Otomotif", "Pentas Seni", "Olimpiade Olahraga"], answer: 0 },
+            { id: 5, category: "Digitalisasi", question: "Wujud nyata digitalisasi sekolah di SMAN 2 Brebes terlihat dalam penerapan...", options: ["Ujian Berbasis Komputer/CBT & Presensi Digital", "Papan tulis kapur tradisional", "Surat-menyurat manual tanpa email", "Pengumuman dengan pengeras suara saja"], answer: 0 },
+            { id: 6, category: "Prestasi", question: "Siswa SMAN 2 Brebes sering mengukir prestasi gemilang hingga tingkat provinsi & nasional dalam ajang...", options: ["KSN (Kompetisi Sains Nasional) & O2SN", "Lomba balap liar", "Kompetisi E-Sport ilegal", "Festival Kuliner Tradisional"], answer: 0 },
+            { id: 7, category: "Ekstrakurikuler", question: "Ekstrakurikuler Wajib yang membentuk kedisiplinan dan karakter kepemimpinan siswa di SMA adalah...", options: ["Pramuka", "PMR", "Paskibra", "KIR"], answer: 0 },
+            { id: 8, category: "Program Sekolah", question: "Program sekolah adiwiyata bertujuan untuk mewujudkan lingkungan SMAN 2 Brebes yang...", options: ["Bersih, Hijau, Asri, dan Berwawasan Lingkungan", "Penuh dengan gedung pencakar langit", "Mewah dan serba tertutup", "Khusus untuk area industri"], answer: 0 },
+            { id: 9, category: "Guru & Staf", question: "Peran utama Bapak/Ibu Guru Inspiratif di SMAN 2 Brebes tidak hanya mengajar, tetapi juga...", options: ["Membimbing, menuntun karakter, dan mendampingi potensi siswa", "Hanya memberikan tugas tanpa evaluasi", "Mengatur jadwal angkutan umum", "Menjaga gerbang utama setiap jam"], answer: 0 },
+            { id: 10, category: "Kegiatan Sekolah", question: "Kegiatan tahunan yang menjadi wadah kebolehan bakat seni dan kreasi siswa SMAN 2 Brebes adalah...", options: ["Pentas Seni (Pensi) & Panen Karya P5", "Bazar Murah Kecamatan", "Kerja Bakti Antar Desa", "Kunjungan Industri Luar Negeri"], answer: 0 },
+            { id: 11, category: "Profil Sekolah", question: "Warna utama yang mencerminkan ketenangan, keunggulan, dan kejayaan pada identitas SMAN 2 Brebes adalah...", options: ["Biru & Emas", "Merah & Hitam", "Hijau & Merah", "Ungu & Cokelat"], answer: 0 },
+            { id: 12, category: "Fasilitas", question: "Laboratorium yang digunakan siswa SMAN 2 Brebes untuk praktik pengamatan sel dan reaksi kimia adalah...", options: ["Laboratorium IPA (Biologi/Kimia/Fisika)", "Laboratorium Bahasa Asing", "Bengkel Las", "Ruang Karawitan"], answer: 0 },
+            { id: 13, category: "Budaya Sekolah", question: "Slogan pembelajaran Kurikulum Merdeka yang dijunjung di SMAN 2 Brebes menekankan pada profil...", options: ["Pelajar Pancasila", "Siswa Serba Bisa", "Generasi Emas Tanpa Batas", "Pemuda Mandiri Cerdas"], answer: 0 },
+            { id: 14, category: "Ekstrakurikuler", question: "Wadah bagi siswa SMAN 2 Brebes yang berminat pada bidang penelitian ilmiah dan karya tulis adalah...", options: ["KIR (Kelompok Ilmiah Remaja)", "Paskibraka", "Pencak Silat", "Teater Sekolah"], answer: 0 },
+            { id: 15, category: "Kegiatan Sekolah", question: "Upacara Bendera di SMAN 2 Brebes rutin dilaksanakan setiap hari Senin untuk menanamkan jiwa...", options: ["Nasionalisme & Cinta Tanah Air", "Keberanian Bertarung", "Sikap Individualis", "Kompetisi Ketat"], answer: 0 },
+            { id: 16, category: "Digitalisasi", question: "Platform atau media utama yang digunakan untuk membagikan informasi resmi dan prestasi SMAN 2 Brebes adalah...", options: ["Website Resmi Sekolah & Media Sosial Resmi", "Mading Kertas Pasar", "Brochure Cetak Harian", "Pesan Singkat Radio Lokal"], answer: 0 },
+            { id: 17, category: "Program Sekolah", question: "Program Bimbingan Konseling (BK) di SMAN 2 Brebes berfokus membantu siswa dalam...", options: ["Pengembangan diri, karir studi lanjut, dan pemecahan masalah", "Pembersihan area taman", "Pembayaran pendaftaran ulang", "Penjualan perlengkapan sekolah"], answer: 0 },
+            { id: 18, category: "Prestasi", question: "Tim olahraga SMAN 2 Brebes sering menorehkan kebanggaan dalam cabang olahraga...", options: ["Bola Basket & Futsal", "Formula 1", "Ski Es", "Golf Profesional"], answer: 0 },
+            { id: 19, category: "Budaya Sekolah", question: "Karakter utama yang terus ditanamkan di Smanda Brebes agar siswa siap menghadapi masa depan adalah...", options: ["Beriman, Bertakwa, Cerdas, & Berkarakter Mulia", "Apatis dan Menutup Diri", "Menghalalkan Segala Cara", "Pasrah Tanpa Usaha"], answer: 0 },
+            { id: 20, category: "Profil Sekolah", question: "Lulusan SMAN 2 Brebes banyak diterima di berbagai PTN favorit Indonesia melalui jalur...", options: ["SNBP, SNBT, & Mandiri PTN", "Jalur Khusus Tanpa Tes", "Undangan Langsung Kerja", "Beasiswa Luar Negeri Tanpa Seleksi"], answer: 0 }
+        ];
+
+        // DEFAULT 20 PROGRAM UNGGULAN SMAN 2 BREBES DATASET
+        const DEFAULT_PROGRAMS = [
+            { id: 1, program: "Literasi Sekolah", icon: "book-open", description: "Program pembudayaan minat membaca dan menulis secara berkelanjutan bagi seluruh warga SMAN 2 Brebes.", goal: "Meningkatkan daya kritis & wawasan pengetahuan siswa.", benefit: "Menumbuhkan kebiasaan membaca sebagai gaya hidup.", question: "Apa fokus utama dari program Literasi Sekolah di SMAN 2 Brebes?", options: ["Membangun budaya membaca & menulis warga sekolah", "Pembelian buku paket tanpa dibaca", "Kegiatan lari marathon harian", "Lomba kebersihan taman"], answer: 0 },
+            { id: 2, program: "Numerasi", icon: "calculator", description: "Program peningkatan kemampuan siswa dalam mengaplikasikan konsep matematika pada kehidupan sehari-hari.", goal: "Mengasah penalaran matematis & kemampuan problem solving.", benefit: "Siswa lebih terampil mengolah data & logika kritis.", question: "Program Numerasi di SMAN 2 Brebes bertujuan untuk meningkatkan kemampuan...", options: ["Berpikir logis & penalaran matematis siswa", "Menghafal lirik lagu daerah", "Menggambar seni rupa abstrak", "Menari tradisional"], answer: 0 },
+            { id: 3, program: "Kurikulum Merdeka", icon: "compass", description: "Implementasi kurikulum inovatif berfokus pada materi esensial dan pengembangan karakter minat siswa.", goal: "Mewujudkan pembelajaran berdiferensiasi yang fleksibel.", benefit: "Siswa belajar sesuai potensi dan bakat uniknya.", question: "Prinsip utama Kurikulum Merdeka yang diterapkan di SMANDA adalah...", options: ["Pembelajaran berpusat pada siswa & minat bakat", "Hanya metode ceramah satu arah", "Tanpa adanya evaluasi belajar", "Mewajibkan belajar hingga larut malam"], answer: 0 },
+            { id: 4, program: "Projek P5", icon: "award", description: "Projek Penguatan Profil Pelajar Pancasila untuk mengasah karakter beriman, gotong royong, dan kreatif.", goal: "Membentuk kepribadian siswa berkarakter Pancasila.", benefit: "Pengalaman belajar berbasis aksi nyata & pameran karya.", question: "Kegiatan P5 di SMAN 2 Brebes berfokus pada pembentukan...", options: ["Karakter & kompetensi sesuai profil Pelajar Pancasila", "Keahlian mekanik balap", "Nilai tes tulis harian semata", "Klub fotografi komersial"], answer: 0 },
+            { id: 5, program: "SAJI (SMADA Mengaji)", icon: "heart-handshake", description: "Pembiasaan keagamaan rutin untuk memperdalam bacaan Al-Qur'an dan nilai religius warga sekolah.", goal: "Membina kecerdasan spiritual & ketakwaan siswa.", benefit: "Terciptanya suasana sekolah yang sejuk dan berkah.", question: "Program SAJI (SMADA Brebes Mengaji) bertujuan untuk...", options: ["Meningkatkan keimanan, ketakwaan & karakter religius", "Grup musik rock modern", "Olimpiade Fisika terapan", "Latihan tari kreasi modern"], answer: 0 },
+            { id: 6, program: "PELITA (Podcast Literasi)", icon: "mic", description: "Inovasi media Podcast Literasi tempat siswa dan guru berdiskusi seputar wawasan & karya inspiratif.", goal: "Melatih public speaking dan gagasan kreatif digital.", benefit: "Media edukasi interaktif berbasis multimedia.", question: "Media inovatif PELITA (Podcast Literasi) di SMANDA dimanfaatkan untuk...", options: ["Wadah ekspresi, diskusi & edukasi kreatif digital", "Siaran berita radio komersial", "Jual beli barang secara online", "Pemutaran film bioskop"], answer: 0 },
+            { id: 7, program: "Tutor Sebaya Literasi", icon: "users", description: "Metode belajar di mana siswa berprestasi mendampingi kawan sekelas dalam memahami materi literasi.", goal: "Mempermudah pemahaman antar kawan sebaya.", benefit: "Mempererat kebersamaan & rasa solidaritas.", question: "Manfaat utama dari metode Tutor Sebaya Literasi adalah...", options: ["Siswa saling membimbing & mempermudah pemahaman kawan", "Menghilangkan peran guru di kelas", "Memberikan denda keuangan", "Ujian tanpa pengawasan"], answer: 0 },
+            { id: 8, program: "Siswa Terliterat", icon: "trophy", description: "Apresiasi dan penghargaan yang diberikan kepada siswa paling aktif membaca buku perpustakaan.", goal: "Memberikan rangsangan semangat membaca.", benefit: "Memicu kompetisi positif antar siswa dalam literasi.", question: "Tujuan diberikannya Penghargaan Siswa Terliterat di SMANDA adalah...", options: ["Apresiasi & motivasi agar siswa makin rajin membaca", "Syarat wajib kelulusan sekolah", "Pemberian hadiah uang tunai", "Menentukan ketua kelas"], answer: 0 },
+            { id: 9, program: "Membaca Bersama", icon: "book", description: "Gerakan membaca buku non-pelajaran secara serentak sebelum jam pertama pelajaran dimulai.", goal: "Menciptakan konsistensi membaca harian.", benefit: "Menyegarkan pikiran sebelum menerima materi kognitif.", question: "Gerakan Membaca Bersama di SMANDA rutin dilaksanakan untuk...", options: ["Membiasakan waktu khusus membaca sebelum pembelajaran", "Latihan paduan suara harian", "Uji coba perangkat laptop", "Evaluasi kehadiran guru"], answer: 0 },
+            { id: 10, program: "Pojok Literasi", icon: "layout-grid", description: "Penyediaan area membaca mini di sudut setiap ruang kelas lengkap dengan koleksi buku pilihan.", goal: "Mendekatkan akses buku bacaan kepada siswa.", benefit: "Memanfaatkan waktu luang istirahat secara berfaedah.", question: "Pojok Literasi di setiap ruang kelas SMANDA disediakan agar...", options: ["Buku bacaan mudah dijangkau kapan saja oleh siswa", "Tempat menyimpan sepatu siswa", "Area pameran lukisan mahal", "Ruang tidur saat istirahat"], answer: 0 },
+            { id: 11, program: "Pembinaan OSN", icon: "sparkles", description: "Program pendampingan intensif bagi siswa berbakat sains untuk menghadapi Olimpiade Sains Nasional.", goal: "Meraih medali dan kebanggaan tingkat nasional.", benefit: "Meningkatkan reputasi akademik sekolah.", question: "Pembinaan intensif OSN di SMAN 2 Brebes dipersiapkan untuk...", options: ["Mencetak prestasi siswa hingga tingkat Provinsi & Nasional", "Lomba antar RT sekitar", "Syarat masuk klub olahraga", "Tugas akhir semester"], answer: 0 },
+            { id: 12, program: "Prestasi Akademik", icon: "graduation-cap", description: "Program pemetaan dan pendampingan nilai akademik untuk kelanjutan studi ke PTN favorit.", goal: "Meloloskan sebanyak mungkin alumni ke perguruan tinggi negeri.", benefit: "Peluang beasiswa dan karir studi yang cerah.", question: "Program Pembinaan Prestasi Akademik difokuskan pada...", options: ["Peningkatan capaian akademik & kesiapan PTN favorit", "Pembuatan seragam baru", "Pembersihan area kantin", "Latihan kedisiplinan fisik"], answer: 0 },
+            { id: 13, program: "Prestasi Nonakademik", icon: "activity", description: "Wadah pengembangan bakat di bidang Olahraga, Seni, dan Keorganisasian siswa.", goal: "Menyalurkan talenta unggul di luar ranah teori.", benefit: "Mencetak atlet, seniman & pemimpin muda berbakat.", question: "Wadah Pembinaan Prestasi Nonakademik SMANDA menampung potensi di bidang...", options: ["Seni, Olahraga, dan Keorganisasian", "Hanya teori fisika murni", "Pengoperasian mesin pabrik", "Trading saham digital"], answer: 0 },
+            { id: 14, program: "Minat dan Bakat", icon: "zap", description: "Penelusuran minat sejak awal masuk sekolah untuk menyalurkan potensi siswa secara tepat sasaran.", goal: "Mencegah siswa salah jurusan / bakat terpendam.", benefit: "Siswa tumbuh percaya diri sesuai kelebihannya.", question: "SMAN 2 Brebes memfasilitasi Pengembangan Minat dan Bakat siswa melalui...", options: ["Beragam pilihan Ekstrakurikuler & Pembimbingan Khusus", "Ujian tertulis berturut-turut", "Wajib masuk jam 5 pagi", "Hanya 1 pilihan kegiatan"], answer: 0 },
+            { id: 15, program: "Digitalisasi Sekolah", icon: "cpu", description: "Pemanfaatan teknologi CBT, Presensi Digital, dan Learning Management System di lingkungan SMANDA.", goal: "Mewujudkan tata kelola & pembelajaran modern ramah lingkungan.", benefit: "Proses administrasi & evaluasi cepat, efisien, transparan.", question: "Digitalisasi Pembelajaran di SMANDA terwujud melalui penggunaan...", options: ["CBT Online, Presensi Digital & Media Interaktif", "Papan tulis kayu tempo dulu", "Surat kertas antar kelas", "Buku catatan fisik tanpa HP"], answer: 0 },
+            { id: 16, program: "Website Resmi", icon: "globe", description: "Portal informasi digital terpadu seputar profil, berita, galeri prestasi, dan layanan SMAN 2 Brebes.", goal: "Menyediakan transparansi informasi kepada masyarakat.", benefit: "Memudahkan publik mengakses capaian sekolah.", question: "Fungsi utama Website Resmi SMAN 2 Brebes adalah...", options: ["Pusat informasi publik, galeri prestasi & portal resmi", "Toko online pakaian", "Media sosial pribadi siswa", "Situs permainan game online"], answer: 0 },
+            { id: 17, program: "Pendidikan Karakter", icon: "shield-check", description: "Internalisasi nilai integritas, sopan santun, kejujuran, dan empati sosial pada setiap pembelajaran.", goal: "Membentuk lulusan berakhlak mulia.", benefit: "Siswa dihormati dan siap hidup di masyarakat luas.", question: "Pendidikan Karakter di SMAN 2 Brebes menanamkan nilai-nilai...", options: ["Integritas, Sopan Santun, Kedisiplinan & Religius", "Individualisme dan sikap cuek", "Kompetisi curang antar kelas", "Gaya hidup konsumtif"], answer: 0 },
+            { id: 18, program: "Pembiasaan Disiplin", icon: "clock", description: "Penerapan kedisiplinan hadir tepat waktu, seragam rapi, serta budaya 5S dalam kehidupan sehari-hari.", goal: "Menanamkan etos kerja tinggi sejak dini.", benefit: "Membentuk kepribadian tangguh dan dapat dipercaya.", question: "Pembiasaan Disiplin dilakukan di SMANDA melalui kegiatan...", options: ["Ketepatan waktu, Budaya 5S & Upacara Bendera rutin", "Hukuman fisik berat", "Denda keuangan harian", "Pemberian tugas tanpa batas"], answer: 0 },
+            { id: 19, program: "Teknologi Pembelajaran", icon: "laptop", description: "Pemanfaatan proyektor interaktif, simulasi virtual, dan media digital dalam kegiatan KBM.", goal: "Membuat materi pelajaran menarik & visual.", benefit: "Siswa lebih cepat paham konsep yang abstrak.", question: "Pemanfaatan IT dalam pembelajaran di kelas bertujuan untuk...", options: ["Menciptakan pembelajaran yang adaptif, menarik & efisien", "Membuat siswa ketergantungan game", "Menggantikan peran teman sekelas", "Menghabiskan kuota guru"], answer: 0 },
+            { id: 20, program: "Inovasi Sekolah", icon: "lightbulb", description: "Program pengembangan ide-ide pembaruan pembelajaran dan manajemen untuk menjaga keunggulan sekolah.", goal: "Mewujudkan SMAN 2 Brebes sebagai sekolah rujukan unggulan.", benefit: "Kualitas pendidikan senantiasa relevan dengan zaman.", question: "Program Inovasi Sekolah SMANDA terus dikembangkan untuk...", options: ["Meningkatkan mutu pendidikan unggul berwawasan masa depan", "Mengikuti tren tanpa tujuan", "Meningkatkan biaya sekolah", "Mengurangi fasilitas belajar"], answer: 0 }
+        ];
+
+        // DEFAULT MEMORY CARD PAIRS DATASET
+        const DEFAULT_MEMORY_PAIRS = [
+            { id: 1, pairKey: "literasi", name: "Literasi Sekolah", icon: "book-open", description: "Program pembudayaan minat membaca dan menulis secara berkelanjutan bagi seluruh warga SMAN 2 Brebes.", goal: "Meningkatkan daya kritis & wawasan pengetahuan siswa.", benefit: "Menumbuhkan kebiasaan membaca sebagai gaya hidup." },
+            { id: 2, pairKey: "numerasi", name: "Numerasi", icon: "calculator", description: "Program peningkatan kemampuan siswa dalam mengaplikasikan konsep matematika pada kehidupan sehari-hari.", goal: "Mengasah penalaran matematis & kemampuan problem solving.", benefit: "Siswa lebih terampil mengolah data & logika kritis." },
+            { id: 3, pairKey: "p5", name: "Projek P5", icon: "award", description: "Projek Penguatan Profil Pelajar Pancasila untuk mengasah karakter beriman, gotong royong, dan kreatif.", goal: "Membentuk kepribadian siswa berkarakter Pancasila.", benefit: "Pengalaman belajar berbasis aksi nyata & pameran karya." },
+            { id: 4, pairKey: "saji", name: "SAJI Mengaji", icon: "heart-handshake", description: "Pembiasaan keagamaan rutin untuk memperdalam bacaan Al-Qur'an dan nilai religius warga sekolah.", goal: "Membina kecerdasan spiritual & ketakwaan siswa.", benefit: "Terciptanya suasana sekolah yang sejuk dan berkah." },
+            { id: 5, pairKey: "pelita", name: "PELITA Podcast", icon: "mic", description: "Inovasi media Podcast Literasi tempat siswa dan guru berdiskusi seputar wawasan & karya inspiratif.", goal: "Melatih public speaking dan gagasan kreatif digital.", benefit: "Media edukasi interaktif berbasis multimedia." },
+            { id: 6, pairKey: "tutor", name: "Tutor Sebaya", icon: "users", description: "Metode belajar di mana siswa berprestasi mendampingi kawan sekelas dalam memahami materi literasi.", goal: "Mempermudah pemahaman antar kawan sebaya.", benefit: "Mempererat kebersamaan & rasa solidaritas." },
+            { id: 7, pairKey: "osn", name: "Pembinaan OSN", icon: "trophy", description: "Program pendampingan intensif bagi siswa berbakat sains untuk menghadapi Olimpiade Sains Nasional.", goal: "Meraih medali dan kebanggaan tingkat nasional.", benefit: "Meningkatkan reputasi akademik sekolah." },
+            { id: 8, pairKey: "digital", name: "Digitalisasi KBM", icon: "laptop", description: "Pemanfaatan teknologi CBT, Presensi Digital, dan Learning Management System di lingkungan SMANDA.", goal: "Mewujudkan tata kelola & pembelajaran modern ramah lingkungan.", benefit: "Proses administrasi & evaluasi cepat, efisien, transparan." },
+            { id: 9, pairKey: "website", name: "Website Sekolah", icon: "globe", description: "Portal informasi digital terpadu seputar profil, berita, galeri prestasi, dan layanan SMAN 2 Brebes.", goal: "Menyediakan transparansi informasi kepada masyarakat.", benefit: "Memudahkan publik mengakses capaian sekolah." },
+            { id: 10, pairKey: "bakat", name: "Minat & Bakat", icon: "zap", description: "Penelusuran minat sejak awal masuk sekolah untuk menyalurkan potensi siswa secara tepat sasaran.", goal: "Mencegah siswa salah jurusan / bakat terpendam.", benefit: "Siswa tumbuh percaya diri sesuai kelebihannya." }
+        ];
+
         class AmazingRaceApp {
             constructor() {
                 this.sound = new SoundEngine();
                 this.confetti = new ConfettiSystem('confettiCanvas');
                 this.bgParticles = new BackgroundParticles('bgCanvas');
 
-                // Game State
+                this.currentGameMode = 'RACE'; 
+
                 this.playerName = '';
                 this.questions = [];
                 this.currentIndex = 0;
@@ -982,21 +1232,40 @@
                 this.timeRemaining = 15;
                 this.isAnsweringAllowed = false;
 
-                // Admin PIN (Default: 1234)
+                this.sessionPrograms = [];
+                this.openedCardsCount = 0;
+                this.activeProgramRef = null;
+                this.pQuizTimerInterval = null;
+                this.pQuizTimeRemaining = 15;
+
+                this.memoryLevel = 'EASY'; 
+                this.memoryCards = [];
+                this.flippedMemoryCards = [];
+                this.matchedPairsCount = 0;
+                this.totalMemoryPairs = 6;
+                this.memoryAttempts = 0;
+                this.memoryTimerInterval = null;
+                this.memoryTimeRemaining = 60;
+                this.isMemoryClickable = true;
+
                 this.ADMIN_PIN = "1234";
 
-                this.initSubmissionsStorage();
+                this.initStorage();
             }
 
-            initSubmissionsStorage() {
+            initStorage() {
+                if (!localStorage.getItem('smanda_programs')) {
+                    localStorage.setItem('smanda_programs', JSON.stringify(DEFAULT_PROGRAMS));
+                }
+                if (!localStorage.getItem('smanda_memory_pairs')) {
+                    localStorage.setItem('smanda_memory_pairs', JSON.stringify(DEFAULT_MEMORY_PAIRS));
+                }
                 if (!localStorage.getItem('smanda_submissions')) {
-                    // Initial Dummy Submissions for testing
                     const initialData = [
-                        { id: 1, name: "Ahmad Smanda", score: 2850, correct: 19, wrong: 1, badge: "Duta SMAN 2 Brebes", date: "2026-08-01 08:30" },
-                        { id: 2, name: "Siti Rahmawati", score: 2600, correct: 18, wrong: 2, badge: "Duta SMAN 2 Brebes", date: "2026-08-01 09:15" },
-                        { id: 3, name: "Budi Santoso", score: 2400, correct: 17, wrong: 3, badge: "Guru Inspiratif", date: "2026-08-01 10:00" },
-                        { id: 4, name: "Dewi Lestari", score: 2150, correct: 15, wrong: 5, badge: "Guru Inspiratif", date: "2026-08-01 11:20" },
-                        { id: 5, name: "Eko Prasetyo", score: 1900, correct: 14, wrong: 6, badge: "Guru Inovatif", date: "2026-08-01 13:45" }
+                        { id: 1, name: "Ahmad Smanda", score: 3250, correct: 22, wrong: 1, badge: "📚 Duta Program SMADA", date: "2026-08-01 08:30" },
+                        { id: 2, name: "Siti Rahmawati", score: 2800, correct: 19, wrong: 2, badge: "🏆 SMADA Explorer", date: "2026-08-01 09:15" },
+                        { id: 3, name: "Budi Santoso", score: 2400, correct: 17, wrong: 3, badge: "⭐ Program Master", date: "2026-08-01 10:00" },
+                        { id: 4, name: "Dewi Lestari", score: 2150, correct: 15, wrong: 5, badge: "🎓 Amazing Learner", date: "2026-08-01 11:20" }
                     ];
                     localStorage.setItem('smanda_submissions', JSON.stringify(initialData));
                 }
@@ -1005,71 +1274,117 @@
             toggleSFX() {
                 this.sound.sfxMuted = !this.sound.sfxMuted;
                 const btn = document.getElementById('btnSound');
-                btn.classList.toggle('text-slate-500', this.sound.sfxMuted);
-                btn.classList.toggle('text-amber-400', !this.sound.sfxMuted);
-                this.sound.playClick();
+                btn.className = `p-2.5 rounded-xl glass-light hover:bg-white/20 transition flex items-center justify-center ${this.sound.sfxMuted ? 'text-slate-500' : 'text-amber-400'}`;
+                if (!this.sound.sfxMuted) this.sound.playClick();
             }
 
             toggleBGM() {
                 this.sound.bgmMuted = !this.sound.bgmMuted;
                 const btn = document.getElementById('btnMusic');
-                btn.classList.toggle('text-slate-500', this.sound.bgmMuted);
-                btn.classList.toggle('text-blue-400', !this.sound.bgmMuted);
-                
-                if (this.sound.bgmMuted) {
-                    this.sound.stopBGM();
-                } else {
-                    this.sound.startBGM();
-                }
+                btn.className = `p-2.5 rounded-xl glass-light hover:bg-white/20 transition flex items-center justify-center ${this.sound.bgmMuted ? 'text-slate-500' : 'text-blue-400'}`;
+                if (this.sound.bgmMuted) this.sound.stopBGM();
+                else this.sound.startBGM();
+            }
+
+            setLoginMode(mode) {
+                this.currentGameMode = mode;
+                const btnRace = document.getElementById('btnLoginModeRace');
+                const btnCard = document.getElementById('btnLoginModeCard');
+                const btnMem = document.getElementById('btnLoginModeMemory');
+
+                [btnRace, btnCard, btnMem].forEach(b => {
+                    b.className = "p-2.5 rounded-2xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 text-xs font-bold flex flex-col items-center justify-center gap-1 transition hover:border-blue-400/50";
+                });
+
+                if (mode === 'RACE') btnRace.className = "p-2.5 rounded-2xl border-2 border-blue-500 bg-blue-500/20 text-white text-xs font-bold flex flex-col items-center justify-center gap-1 transition";
+                else if (mode === 'CARD') btnCard.className = "p-2.5 rounded-2xl border-2 border-blue-500 bg-blue-500/20 text-white text-xs font-bold flex flex-col items-center justify-center gap-1 transition";
+                else if (mode === 'MEMORY') btnMem.className = "p-2.5 rounded-2xl border-2 border-blue-500 bg-blue-500/20 text-white text-xs font-bold flex flex-col items-center justify-center gap-1 transition";
+
+                this.sound.playClick();
+            }
+
+            selectGameMode(mode) {
+                this.currentGameMode = mode;
+                this.updateNavModeButtons();
+                this.startGame();
+            }
+
+            updateNavModeButtons() {
+                const btnRace = document.getElementById('btnTabRace');
+                const btnCard = document.getElementById('btnTabCard');
+                const btnMem = document.getElementById('btnTabMemory');
+
+                [btnRace, btnCard, btnMem].forEach(b => {
+                    b.className = "px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-white/10";
+                });
+
+                if (this.currentGameMode === 'RACE') btnRace.className = "px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-blue-600 text-white shadow";
+                else if (this.currentGameMode === 'CARD') btnCard.className = "px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow";
+                else if (this.currentGameMode === 'MEMORY') btnMem.className = "px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-500 text-slate-950 shadow";
             }
 
             handleLogin(e) {
-                e.preventDefault();
-                this.sound.playClick();
-                const input = document.getElementById('inputName');
+                if (e) e.preventDefault();
+                const nameInput = document.getElementById('inputName');
                 const valError = document.getElementById('valError');
                 const valErrorText = document.getElementById('valErrorText');
-                const val = input.value.trim();
+                const rawName = nameInput.value.trim();
 
-                if (val.length < 3 || val.length > 30) {
-                    valErrorText.innerText = 'Nama harus antara 3 - 30 karakter!';
+                if (!rawName) {
+                    valErrorText.innerText = "Nama wajib diisi!";
                     valError.classList.remove('hidden');
+                    this.sound.playWrong();
                     return;
                 }
-                if (/^\d+$/.test(val)) {
-                    valErrorText.innerText = 'Nama tidak boleh hanya berupa angka!';
+                if (rawName.length < 3) {
+                    valErrorText.innerText = "Nama minimal 3 karakter!";
                     valError.classList.remove('hidden');
+                    this.sound.playWrong();
+                    return;
+                }
+                if (rawName.length > 30) {
+                    valErrorText.innerText = "Nama maksimal 30 karakter!";
+                    valError.classList.remove('hidden');
+                    this.sound.playWrong();
+                    return;
+                }
+                if (!isNaN(rawName)) {
+                    valErrorText.innerText = "Nama tidak boleh hanya berupa angka!";
+                    valError.classList.remove('hidden');
+                    this.sound.playWrong();
                     return;
                 }
 
                 valError.classList.add('hidden');
-                this.playerName = val;
-
+                this.playerName = rawName;
+                localStorage.setItem('smanda_current_user', rawName);
+                
+                this.sound.playClick();
+                document.getElementById('navModeSelector').classList.remove('hidden');
+                this.updateNavModeButtons();
                 this.startGame();
             }
 
             startGame() {
-                this.score = 0;
                 this.correctCount = 0;
                 this.wrongCount = 0;
                 this.currentIndex = 0;
 
-                this.questions = JSON.parse(JSON.stringify(QUESTIONS_DATA));
-                this.shuffleArray(this.questions);
+                if (this.currentGameMode === 'RACE') {
+                    this.questions = JSON.parse(JSON.stringify(QUESTIONS_RACE));
+                    this.shuffleArray(this.questions);
 
-                document.getElementById('dashPlayer').innerText = this.playerName;
-                document.getElementById('dashScore').innerText = '0';
-                document.getElementById('dashProgress').innerText = `1 / ${this.questions.length}`;
+                    document.getElementById('dashPlayer').innerText = this.playerName;
+                    document.getElementById('dashScore').innerText = `${this.score} Pts`;
+                    document.getElementById('dashProgress').innerText = `1 / ${this.questions.length}`;
 
-                this.switchView('viewGame');
-                this.sound.startBGM();
-                this.loadQuestion();
-            }
-
-            shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
+                    this.switchView('viewGame');
+                    this.sound.startBGM();
+                    this.loadQuestion();
+                } else if (this.currentGameMode === 'CARD') {
+                    this.startCardGame();
+                } else if (this.currentGameMode === 'MEMORY') {
+                    this.startMemoryGame();
                 }
             }
 
@@ -1079,44 +1394,36 @@
                     return;
                 }
 
-                this.isAnsweringAllowed = true;
-                const q = this.questions[this.currentIndex];
-
-                const originalOptions = q.options.map((opt, idx) => ({ text: opt, isCorrect: idx === q.answer }));
-                this.shuffleArray(originalOptions);
-
+                const currentQ = this.questions[this.currentIndex];
+                document.getElementById('quizCategory').innerHTML = `<i data-lucide="bookmark" class="w-3.5 h-3.5"></i> ${currentQ.category}`;
+                document.getElementById('quizQuestionText').innerText = currentQ.question;
                 document.getElementById('dashProgress').innerText = `${this.currentIndex + 1} / ${this.questions.length}`;
-                document.getElementById('questionCategory').innerText = q.category;
-                document.getElementById('questionText').innerText = q.question;
 
-                const container = document.getElementById('optionsContainer');
+                const container = document.getElementById('quizOptionsContainer');
                 container.innerHTML = '';
 
-                originalOptions.forEach((optObj, idx) => {
+                currentQ.options.forEach((optText, optIdx) => {
                     const btn = document.createElement('button');
-                    btn.className = `option-btn w-full p-4 rounded-2xl glass-light border border-white/15 text-left text-sm sm:text-base font-semibold text-slate-100 flex items-center justify-between group`;
-                    btn.onclick = () => this.handleAnswer(optObj.isCorrect, btn);
-                    
-                    const prefix = ['A', 'B', 'C', 'D'][idx];
+                    btn.className = "option-btn w-full p-4 rounded-2xl bg-slate-900/80 border border-slate-700 text-slate-200 font-semibold text-xs sm:text-sm text-left flex items-center justify-between group";
                     btn.innerHTML = `
-                        <div class="flex items-center space-x-3">
-                            <span class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-300 font-extrabold text-xs flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition">
-                                ${prefix}
+                        <span class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-300 font-bold flex items-center justify-center text-xs group-hover:bg-blue-500 group-hover:text-white transition">
+                                ${String.fromCharCode(65 + optIdx)}
                             </span>
-                            <span>${optObj.text}</span>
-                        </div>
+                            <span>${optText}</span>
+                        </span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 group-hover:text-white transition"></i>
                     `;
-                    btn.dataset.correct = optObj.isCorrect;
+                    btn.onclick = () => this.handleAnswer(optIdx);
                     container.appendChild(btn);
                 });
+                lucide.createIcons();
 
-                const pct = ((this.currentIndex) / this.questions.length) * 100;
-                document.getElementById('progressBarFill').style.width = `${pct}%`;
-
-                this.startTimer();
+                this.isAnsweringAllowed = true;
+                this.startQuestionTimer();
             }
 
-            startTimer() {
+            startQuestionTimer() {
                 clearInterval(this.timerInterval);
                 this.timeRemaining = 15;
                 this.updateTimerUI();
@@ -1124,66 +1431,62 @@
                 this.timerInterval = setInterval(() => {
                     this.timeRemaining--;
                     this.updateTimerUI();
-                    this.sound.playTick();
+                    if (this.timeRemaining <= 5) this.sound.playTick();
 
                     if (this.timeRemaining <= 0) {
                         clearInterval(this.timerInterval);
-                        this.handleAnswer(false, null);
+                        this.handleAnswer(-1); // Time out
                     }
                 }, 1000);
             }
 
             updateTimerUI() {
-                const timerText = document.getElementById('timerText');
-                const circle = document.getElementById('timerCircle');
+                const timerText = document.getElementById('quizTimerText');
+                const circle = document.getElementById('quizTimerCircle');
                 timerText.innerText = this.timeRemaining;
 
                 const offset = 263.89 - (this.timeRemaining / 15) * 263.89;
                 circle.style.strokeDashoffset = offset;
 
-                if (this.timeRemaining > 8) {
-                    circle.style.stroke = "#3b82f6";
-                } else if (this.timeRemaining > 4) {
-                    circle.style.stroke = "#f59e0b";
-                } else {
-                    circle.style.stroke = "#ef4444";
-                }
+                if (this.timeRemaining > 8) circle.style.stroke = "#10b981";
+                else if (this.timeRemaining > 4) circle.style.stroke = "#f59e0b";
+                else circle.style.stroke = "#ef4444";
             }
 
-            handleAnswer(isCorrect, selectedBtn) {
+            handleAnswer(selectedIndex) {
                 if (!this.isAnsweringAllowed) return;
                 this.isAnsweringAllowed = false;
                 clearInterval(this.timerInterval);
 
-                const optionsBtns = document.querySelectorAll('.option-btn');
-                optionsBtns.forEach(btn => btn.disabled = true);
+                const currentQ = this.questions[this.currentIndex];
+                const container = document.getElementById('quizOptionsContainer');
+                const buttons = container.querySelectorAll('button');
 
-                if (isCorrect) {
+                if (selectedIndex === currentQ.answer) {
                     this.sound.playCorrect();
-                    if (selectedBtn) selectedBtn.classList.add('option-correct');
-
-                    let bonus = 0;
-                    const timeUsed = 15 - this.timeRemaining;
-                    if (timeUsed < 5) bonus = 50;
-                    else if (timeUsed <= 10) bonus = 30;
-                    else bonus = 20;
-
-                    this.score += (100 + bonus);
                     this.correctCount++;
-                    this.confetti.burst();
+                    
+                    let speedBonus = 20;
+                    if (this.timeRemaining > 10) speedBonus = 50;
+                    else if (this.timeRemaining > 5) speedBonus = 30;
+
+                    this.score += (100 + speedBonus);
+                    document.getElementById('dashScore').innerText = `${this.score} Pts`;
+
+                    if (selectedIndex >= 0 && buttons[selectedIndex]) {
+                        buttons[selectedIndex].classList.add('option-correct');
+                    }
                 } else {
                     this.sound.playWrong();
-                    if (selectedBtn) selectedBtn.classList.add('option-wrong');
                     this.wrongCount++;
 
-                    optionsBtns.forEach(btn => {
-                        if (btn.dataset.correct === 'true') {
-                            btn.classList.add('option-correct');
-                        }
-                    });
+                    if (selectedIndex >= 0 && buttons[selectedIndex]) {
+                        buttons[selectedIndex].classList.add('option-wrong');
+                    }
+                    if (buttons[currentQ.answer]) {
+                        buttons[currentQ.answer].classList.add('option-correct');
+                    }
                 }
-
-                document.getElementById('dashScore').innerText = this.score;
 
                 setTimeout(() => {
                     this.currentIndex++;
@@ -1191,45 +1494,433 @@
                 }, 1200);
             }
 
+            startCardGame() {
+                this.openedCardsCount = 0;
+                const rawProgs = JSON.parse(localStorage.getItem('smanda_programs') || '[]');
+                this.sessionPrograms = JSON.parse(JSON.stringify(rawProgs));
+                this.shuffleArray(this.sessionPrograms);
+
+                document.getElementById('cardProgressText').innerText = `0 / ${this.sessionPrograms.length} Opened`;
+                this.renderCardGrid();
+                this.switchView('viewCardGame');
+                this.sound.startBGM();
+            }
+
+            renderCardGrid() {
+                const container = document.getElementById('cardGridContainer');
+                container.innerHTML = '';
+
+                this.sessionPrograms.forEach((p, idx) => {
+                    const card = document.createElement('div');
+                    card.className = `perspective-1000 h-28 sm:h-32 cursor-pointer select-none card-item-${idx}`;
+                    
+                    const inner = document.createElement('div');
+                    inner.id = `cardInner_${idx}`;
+                    inner.className = `card-inner w-full h-full rounded-2xl shadow-lg border border-white/10 ${p.opened ? 'card-flipped' : ''}`;
+
+                    const front = document.createElement('div');
+                    front.className = "card-front bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 border-2 border-blue-500/40 flex flex-col items-center justify-center p-2 text-center hover:border-amber-400/80 transition group";
+                    front.innerHTML = `
+                        <div class="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-amber-400 font-black text-xl group-hover:scale-110 transition">
+                            ❓
+                        </div>
+                        <span class="text-[9px] font-extrabold tracking-widest text-blue-300 mt-2 uppercase">SMANDA</span>
+                    `;
+
+                    const back = document.createElement('div');
+                    back.className = "card-back bg-gradient-to-tr from-blue-900 via-indigo-900 to-slate-900 border-2 border-amber-400/80 flex flex-col items-center justify-center p-2 text-center shadow-2xl";
+                    back.innerHTML = `
+                        <div class="p-2 rounded-xl bg-amber-400/20 text-amber-300 mb-1">
+                            <i data-lucide="${p.icon || 'book-open'}" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-xs font-black text-white leading-tight">${p.program}</p>
+                    `;
+
+                    inner.appendChild(front);
+                    inner.appendChild(back);
+                    card.appendChild(inner);
+
+                    card.onclick = () => this.handleCardClick(idx);
+                    container.appendChild(card);
+                });
+                lucide.createIcons();
+            }
+
+            handleCardClick(index) {
+                const prog = this.sessionPrograms[index];
+                if (prog.opened) return;
+
+                this.sound.playCardFlip();
+                prog.opened = true;
+                this.openedCardsCount++;
+                document.getElementById('cardProgressText').innerText = `${this.openedCardsCount} / ${this.sessionPrograms.length} Opened`;
+
+                const inner = document.getElementById(`cardInner_${index}`);
+                if (inner) inner.classList.add('card-flipped');
+
+                this.activeProgramRef = prog;
+
+                setTimeout(() => {
+                    document.getElementById('pDetailTitle').innerText = prog.program;
+                    document.getElementById('pDetailDescription').innerText = prog.description;
+                    document.getElementById('pDetailGoal').innerText = prog.goal;
+                    document.getElementById('pDetailBenefit').innerText = prog.benefit;
+                    document.getElementById('pDetailIconBox').innerHTML = `<i data-lucide="${prog.icon || 'book-open'}" class="w-6 h-6"></i>`;
+                    
+                    document.getElementById('modalProgramDetail').classList.remove('hidden');
+                    lucide.createIcons();
+                }, 400);
+            }
+
+            closeProgramDetailModal() {
+                this.sound.playClick();
+                document.getElementById('modalProgramDetail').classList.add('hidden');
+            }
+
+            proceedToProgramQuiz() {
+                this.sound.playClick();
+                document.getElementById('modalProgramDetail').classList.add('hidden');
+
+                const prog = this.activeProgramRef;
+                document.getElementById('pQuizQuestion').innerText = prog.question;
+
+                const optionsContainer = document.getElementById('pQuizOptions');
+                optionsContainer.innerHTML = '';
+
+                const opts = prog.options.map((optText, i) => ({ text: optText, originalIdx: i }));
+                this.shuffleArray(opts);
+
+                opts.forEach((o, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "p-3 rounded-2xl bg-slate-900 border border-slate-700 text-slate-200 font-semibold text-xs text-left hover:border-amber-400 hover:bg-slate-800 transition";
+                    btn.innerText = `${String.fromCharCode(65 + idx)}. ${o.text}`;
+                    btn.onclick = () => this.handleProgramQuizAnswer(o.originalIdx === prog.answer, btn);
+                    optionsContainer.appendChild(btn);
+                });
+
+                document.getElementById('modalProgramQuiz').classList.remove('hidden');
+                this.startProgramQuizTimer();
+            }
+
+            startProgramQuizTimer() {
+                clearInterval(this.pQuizTimerInterval);
+                this.pQuizTimeRemaining = 15;
+                document.getElementById('pQuizTimer').innerText = `${this.pQuizTimeRemaining}s`;
+
+                this.pQuizTimerInterval = setInterval(() => {
+                    this.pQuizTimeRemaining--;
+                    document.getElementById('pQuizTimer').innerText = `${this.pQuizTimeRemaining}s`;
+                    if (this.pQuizTimeRemaining <= 5) this.sound.playTick();
+
+                    if (this.pQuizTimeRemaining <= 0) {
+                        clearInterval(this.pQuizTimerInterval);
+                        this.handleProgramQuizAnswer(false, null);
+                    }
+                }, 1000);
+            }
+
+            handleProgramQuizAnswer(isCorrect, btnEl) {
+                clearInterval(this.pQuizTimerInterval);
+
+                if (isCorrect) {
+                    this.sound.playCorrect();
+                    this.correctCount++;
+                    let bonus = 20;
+                    if (this.pQuizTimeRemaining > 10) bonus = 50;
+                    else if (this.pQuizTimeRemaining > 5) bonus = 30;
+
+                    this.score += (100 + bonus);
+                    if (btnEl) btnEl.className = "p-3 rounded-2xl bg-emerald-600/40 border-2 border-emerald-400 text-emerald-200 font-bold text-xs text-left";
+                } else {
+                    this.sound.playWrong();
+                    this.wrongCount++;
+                    if (btnEl) btnEl.className = "p-3 rounded-2xl bg-red-600/40 border-2 border-red-400 text-red-200 font-bold text-xs text-left";
+                }
+
+                setTimeout(() => {
+                    document.getElementById('modalProgramQuiz').classList.add('hidden');
+                    if (this.openedCardsCount >= this.sessionPrograms.length) {
+                        this.finishGame();
+                    }
+                }, 1000);
+            }
+
+            changeMemoryLevel(lvl) {
+                this.memoryLevel = lvl;
+                this.sound.playClick();
+                this.startMemoryGame();
+            }
+
+            startMemoryGame() {
+                clearInterval(this.memoryTimerInterval);
+                this.matchedPairsCount = 0;
+                this.memoryAttempts = 0;
+                this.flippedMemoryCards = [];
+                this.isMemoryClickable = true;
+
+                let pairsCount = 6;
+                let maxTime = 60;
+                if (this.memoryLevel === 'MEDIUM') { pairsCount = 8; maxTime = 90; }
+                else if (this.memoryLevel === 'HARD') { pairsCount = 10; maxTime = 120; }
+
+                this.totalMemoryPairs = pairsCount;
+                this.memoryTimeRemaining = maxTime;
+
+                document.getElementById('btnMemEasy').className = `px-3 py-1.5 rounded-xl text-xs font-bold transition ${this.memoryLevel === 'EASY' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow' : 'text-slate-300 hover:bg-white/10'}`;
+                document.getElementById('btnMemMedium').className = `px-3 py-1.5 rounded-xl text-xs font-bold transition ${this.memoryLevel === 'MEDIUM' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow' : 'text-slate-300 hover:bg-white/10'}`;
+                document.getElementById('btnMemHard').className = `px-3 py-1.5 rounded-xl text-xs font-bold transition ${this.memoryLevel === 'HARD' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow' : 'text-slate-300 hover:bg-white/10'}`;
+
+                document.getElementById('memPlayerName').innerText = this.playerName;
+                document.getElementById('memTotalScore').innerText = `${this.score} Pts`;
+                document.getElementById('memProgress').innerText = `0 / ${pairsCount}`;
+                document.getElementById('memAccuracyBadge').innerText = `0 Try (100%)`;
+
+                const allPairs = JSON.parse(localStorage.getItem('smanda_memory_pairs') || '[]');
+                let selectedPairs = JSON.parse(JSON.stringify(allPairs));
+                this.shuffleArray(selectedPairs);
+                if (selectedPairs.length > pairsCount) selectedPairs = selectedPairs.slice(0, pairsCount);
+
+                const deck = [];
+                selectedPairs.forEach((item, idx) => {
+                    deck.push({
+                        id: `A_${idx}`, pairKey: item.pairKey, type: 'TEXT', title: item.name, icon: item.icon,
+                        description: item.description, goal: item.goal, benefit: item.benefit, isFlipped: false, isMatched: false
+                    });
+                    deck.push({
+                        id: `B_${idx}`, pairKey: item.pairKey, type: 'ICON', title: item.name, icon: item.icon,
+                        description: item.description, goal: item.goal, benefit: item.benefit, isFlipped: false, isMatched: false
+                    });
+                });
+
+                this.shuffleArray(deck);
+                this.memoryCards = deck;
+
+                this.renderMemoryGrid();
+                this.switchView('viewMemoryGame');
+                this.sound.startBGM();
+                this.startMemoryTimer(maxTime);
+            }
+
+            renderMemoryGrid() {
+                const container = document.getElementById('memGridContainer');
+                container.innerHTML = '';
+
+                this.memoryCards.forEach((card, idx) => {
+                    const cardWrapper = document.createElement('div');
+                    cardWrapper.className = `perspective-1000 h-24 sm:h-28 cursor-pointer select-none mem-card-${idx}`;
+                    
+                    const cardInner = document.createElement('div');
+                    cardInner.id = `memCardInner_${idx}`;
+                    cardInner.className = `card-inner w-full h-full rounded-2xl shadow-lg border border-white/10 ${card.isFlipped ? 'card-flipped' : ''}`;
+
+                    const cardFront = document.createElement('div');
+                    cardFront.className = `card-front bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border-2 border-emerald-500/40 rounded-2xl flex flex-col items-center justify-center p-2 text-center hover:border-amber-400/80 transition group`;
+                    cardFront.innerHTML = `
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-amber-400 font-black text-lg group-hover:scale-110 transition">
+                            ❓
+                        </div>
+                        <span class="text-[8px] font-extrabold tracking-widest text-slate-400 mt-1 uppercase">SMANDA</span>
+                    `;
+
+                    const cardBack = document.createElement('div');
+                    cardBack.className = `card-back bg-gradient-to-tr from-emerald-900 via-teal-900 to-slate-900 rounded-2xl flex flex-col items-center justify-center p-2 text-center border-2 ${card.isMatched ? 'border-emerald-400 bg-emerald-950/80' : 'border-amber-400'} shadow-2xl`;
+                    
+                    if (card.type === 'TEXT') {
+                        cardBack.innerHTML = `
+                            <span class="text-[9px] font-extrabold text-amber-300 uppercase tracking-wider mb-1">PROGRAM</span>
+                            <p class="text-xs font-black text-white leading-tight">${card.title}</p>
+                        `;
+                    } else {
+                        cardBack.innerHTML = `
+                            <div class="p-2 rounded-xl bg-amber-400/20 text-amber-300 mb-1">
+                                <i data-lucide="${card.icon || 'book-open'}" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-[9px] font-extrabold text-emerald-300">${card.title}</span>
+                        `;
+                    }
+
+                    cardInner.appendChild(cardFront);
+                    cardInner.appendChild(cardBack);
+                    cardWrapper.appendChild(cardInner);
+
+                    cardWrapper.onclick = () => this.handleMemoryCardClick(idx);
+                    container.appendChild(cardWrapper);
+                });
+                lucide.createIcons();
+            }
+
+            handleMemoryCardClick(index) {
+                if (!this.isMemoryClickable) return;
+                const card = this.memoryCards[index];
+                if (card.isFlipped || card.isMatched) return;
+
+                this.sound.playCardFlip();
+                card.isFlipped = true;
+                this.flippedMemoryCards.push({ index, card });
+
+                const cardInner = document.getElementById(`memCardInner_${index}`);
+                if (cardInner) cardInner.classList.add('card-flipped');
+
+                if (this.flippedMemoryCards.length === 2) {
+                    this.isMemoryClickable = false;
+                    this.memoryAttempts++;
+
+                    const [first, second] = this.flippedMemoryCards;
+                    if (first.card.pairKey === second.card.pairKey) {
+                        this.sound.playCorrect();
+                        this.confetti.burst();
+                        first.card.isMatched = true;
+                        second.card.isMatched = true;
+                        this.matchedPairsCount++;
+                        this.correctCount++;
+
+                        this.score += 100;
+                        document.getElementById('memTotalScore').innerText = `${this.score} Pts`;
+                        document.getElementById('memProgress').innerText = `${this.matchedPairsCount} / ${this.totalMemoryPairs}`;
+
+                        const acc = Math.round((this.matchedPairsCount / this.memoryAttempts) * 100);
+                        document.getElementById('memAccuracyBadge').innerText = `${this.memoryAttempts} Try (${acc}%)`;
+
+                        setTimeout(() => {
+                            this.showMemoryMatchModal(first.card);
+                        }, 500);
+                    } else {
+                        this.sound.playWrong();
+                        this.wrongCount++;
+                        const acc = Math.round((this.matchedPairsCount / this.memoryAttempts) * 100);
+                        document.getElementById('memAccuracyBadge').innerText = `${this.memoryAttempts} Try (${acc}%)`;
+
+                        setTimeout(() => {
+                            first.card.isFlipped = false;
+                            second.card.isFlipped = false;
+                            const el1 = document.getElementById(`memCardInner_${first.index}`);
+                            const el2 = document.getElementById(`memCardInner_${second.index}`);
+                            if (el1) el1.classList.remove('card-flipped');
+                            if (el2) el2.classList.remove('card-flipped');
+                            this.flippedMemoryCards = [];
+                            this.isMemoryClickable = true;
+                        }, 1000);
+                    }
+                }
+            }
+
+            showMemoryMatchModal(cardInfo) {
+                document.getElementById('memMatchTitle').innerText = cardInfo.title;
+                document.getElementById('memMatchDesc').innerText = cardInfo.description;
+                document.getElementById('memMatchGoal').innerText = cardInfo.goal;
+                document.getElementById('memMatchBenefit').innerText = cardInfo.benefit;
+                document.getElementById('memMatchIcon').innerHTML = `<i data-lucide="${cardInfo.icon || 'book-open'}" class="w-6 h-6"></i>`;
+
+                document.getElementById('modalMemoryMatch').classList.remove('hidden');
+                lucide.createIcons();
+            }
+
+            closeMemoryMatchModal() {
+                this.sound.playClick();
+                document.getElementById('modalMemoryMatch').classList.add('hidden');
+                this.flippedMemoryCards = [];
+                this.isMemoryClickable = true;
+
+                if (this.matchedPairsCount >= this.totalMemoryPairs) {
+                    this.finishMemoryGame();
+                }
+            }
+
+            startMemoryTimer(maxTime) {
+                this.memoryTimeRemaining = maxTime;
+                this.updateMemoryTimerUI(maxTime);
+
+                this.memoryTimerInterval = setInterval(() => {
+                    this.memoryTimeRemaining--;
+                    this.updateMemoryTimerUI(maxTime);
+                    if (this.memoryTimeRemaining <= 5) this.sound.playTick();
+
+                    if (this.memoryTimeRemaining <= 0) {
+                        clearInterval(this.memoryTimerInterval);
+                        this.finishMemoryGame();
+                    }
+                }, 1000);
+            }
+
+            updateMemoryTimerUI(maxTime) {
+                const timerText = document.getElementById('memTimerText');
+                const circle = document.getElementById('memTimerCircle');
+                timerText.innerText = this.memoryTimeRemaining;
+
+                const offset = 263.89 - (this.memoryTimeRemaining / maxTime) * 263.89;
+                circle.style.strokeDashoffset = offset;
+
+                if (this.memoryTimeRemaining > (maxTime * 0.5)) circle.style.stroke = "#10b981";
+                else if (this.memoryTimeRemaining > (maxTime * 0.25)) circle.style.stroke = "#f59e0b";
+                else circle.style.stroke = "#ef4444";
+            }
+
+            finishMemoryGame() {
+                clearInterval(this.memoryTimerInterval);
+                if (this.matchedPairsCount >= this.totalMemoryPairs) {
+                    const timeBonus = this.memoryTimeRemaining * 5;
+                    this.score += (300 + timeBonus);
+                }
+                this.finishGame();
+            }
+
             finishGame() {
                 clearInterval(this.timerInterval);
+                clearInterval(this.pQuizTimerInterval);
+                clearInterval(this.memoryTimerInterval);
+
                 this.sound.playVictoryFanfare();
+                this.confetti.burst();
 
-                const badge = this.calculateBadge(this.score);
+                const badgeObj = this.calculateBadge(this.score, this.currentGameMode);
+                document.getElementById('finishPlayerName').innerText = this.playerName;
+                document.getElementById('finishScore').innerText = `${this.score} Pts`;
+                document.getElementById('finishCorrect').innerText = `${this.correctCount} / ${this.correctCount + this.wrongCount}`;
+                document.getElementById('finishBadge').innerText = `${badgeObj.icon} ${badgeObj.title}`;
 
-                // Save Submission to LocalStorage for Admin
+                // Save Submission to LocalStorage
                 const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
-                const now = new Date();
-                const formattedDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-                submissions.push({
+                const newRecord = {
                     id: Date.now(),
                     name: this.playerName,
                     score: this.score,
                     correct: this.correctCount,
                     wrong: this.wrongCount,
-                    badge: `${badge.icon} ${badge.title}`,
-                    date: formattedDate
-                });
-
+                    badge: `${badgeObj.icon} ${badgeObj.title}`,
+                    date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+                };
+                submissions.push(newRecord);
                 localStorage.setItem('smanda_submissions', JSON.stringify(submissions));
 
-                // Populate Participant Finish UI
-                document.getElementById('finishPlayerName').innerText = this.playerName;
-                document.getElementById('finishScore').innerText = `${this.score} Pts`;
-                document.getElementById('finishCorrect').innerText = `${this.correctCount} / ${this.questions.length}`;
-                document.getElementById('finishBadge').innerText = `${badge.icon} ${badge.title}`;
-
                 this.switchView('viewParticipantFinish');
-                this.confetti.burst();
             }
 
-            calculateBadge(score) {
-                if (score >= 2500) return { title: "Duta SMAN 2 Brebes", icon: "🏆" };
-                if (score >= 2000) return { title: "Guru Inspiratif", icon: "⭐" };
-                if (score >= 1500) return { title: "Guru Inovatif", icon: "💡" };
-                if (score >= 1000) return { title: "Guru Kolaboratif", icon: "🤝" };
-                return { title: "Guru Bertumbuh", icon: "🌱" };
+            calculateBadge(score, mode) {
+                if (mode === 'MEMORY') {
+                    if (score >= 2500) return { title: "Memory Master", icon: "🧩" };
+                    if (score >= 2000) return { title: "Perfect Match", icon: "🏅" };
+                    if (score >= 1500) return { title: "Fast Finder", icon: "⚡" };
+                    return { title: "Duta Program SMADA", icon: "📚" };
+                } else if (mode === 'CARD') {
+                    if (score >= 2500) return { title: "Duta Program SMADA", icon: "📚" };
+                    if (score >= 2000) return { title: "SMADA Explorer", icon: "🏆" };
+                    if (score >= 1500) return { title: "Program Master", icon: "⭐" };
+                    return { title: "Amazing Learner", icon: "🎓" };
+                } else {
+                    if (score >= 2500) return { title: "Duta SMAN 2 Brebes", icon: "🏆" };
+                    if (score >= 2000) return { title: "Guru Inspiratif", icon: "⭐" };
+                    return { title: "Guru Inovatif", icon: "💡" };
+                }
+            }
+
+            switchGameModeAndPlay() {
+                this.sound.playClick();
+                if (this.currentGameMode === 'RACE') this.currentGameMode = 'CARD';
+                else if (this.currentGameMode === 'CARD') this.currentGameMode = 'MEMORY';
+                else this.currentGameMode = 'RACE';
+
+                this.updateNavModeButtons();
+                this.startGame();
             }
 
             openAdminAuthModal() {
@@ -1245,11 +1936,12 @@
             }
 
             verifyAdminPin(e) {
-                e.preventDefault();
-                const pinInput = document.getElementById('inputAdminPin').value.trim();
-                if (pinInput === this.ADMIN_PIN) {
-                    this.sound.playClick();
+                if (e) e.preventDefault();
+                const pinVal = document.getElementById('inputAdminPin').value;
+                if (pinVal === this.ADMIN_PIN) {
+                    this.sound.playCorrect();
                     document.getElementById('modalAdminAuth').classList.add('hidden');
+                    document.getElementById('navModeSelector').classList.add('hidden');
                     this.renderAdminDashboard();
                     this.switchView('viewAdminDashboard');
                 } else {
@@ -1259,69 +1951,55 @@
             }
 
             renderAdminDashboard() {
-                const data = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
-                data.sort((a, b) => b.score - a.score);
+                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                submissions.sort((a, b) => b.score - a.score);
 
-                // Stats calculation
-                const total = data.length;
-                const topScore = total > 0 ? data[0].score : 0;
-                const totalScoreSum = data.reduce((acc, curr) => acc + curr.score, 0);
-                const avgScore = total > 0 ? Math.round(totalScoreSum / total) : 0;
+                document.getElementById('admStatTotal').innerText = submissions.length;
+                const topScore = submissions.length > 0 ? submissions[0].score : 0;
+                document.getElementById('admStatTopScore').innerText = topScore;
+
+                const totalPoints = submissions.reduce((sum, item) => sum + item.score, 0);
+                const avg = submissions.length > 0 ? Math.round(totalPoints / submissions.length) : 0;
+                document.getElementById('admStatAvgScore').innerText = avg;
 
                 let totalCorrect = 0;
-                let totalAnswers = 0;
-                data.forEach(item => {
-                    totalCorrect += item.correct;
-                    totalAnswers += (item.correct + item.wrong);
+                let totalAns = 0;
+                submissions.forEach(s => {
+                    totalCorrect += (s.correct || 0);
+                    totalAns += ((s.correct || 0) + (s.wrong || 0));
                 });
-                const avgAccuracy = totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
+                const acc = totalAns > 0 ? Math.round((totalCorrect / totalAns) * 100) : 0;
+                document.getElementById('admStatAccuracy').innerText = `${acc}%`;
 
-                document.getElementById('admStatTotal').innerText = total;
-                document.getElementById('admStatTopScore').innerText = topScore;
-                document.getElementById('admStatAvgScore').innerText = avgScore;
-                document.getElementById('admStatAccuracy').innerText = `${avgAccuracy}%`;
-
-                this.renderAdminPodium(data);
-                this.renderAdminTable(data);
-                this.renderAdminChart(totalCorrect, totalAnswers - totalCorrect);
+                this.renderPodium(submissions);
+                this.renderAdminTable(submissions);
+                this.renderAdminChart(totalCorrect, totalAns - totalCorrect);
             }
 
-            renderAdminPodium(leaderboard) {
+            renderPodium(data) {
                 const container = document.getElementById('admPodiumContainer');
                 container.innerHTML = '';
 
-                const top3 = [
-                    leaderboard[1] || { name: "-", score: 0 },
-                    leaderboard[0] || { name: "-", score: 0 },
-                    leaderboard[2] || { name: "-", score: 0 }
-                ];
+                if (data.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 italic">Belum ada data peserta.</p>`;
+                    return;
+                }
 
-                const heights = ['h-28 sm:h-36', 'h-36 sm:h-44', 'h-24 sm:h-28'];
-                const bgGradients = [
-                    'from-slate-400 to-slate-600 border-slate-300',
-                    'from-amber-400 to-amber-600 border-amber-300',
-                    'from-amber-700 to-amber-900 border-amber-600'
-                ];
-                const ranks = ['2nd', '1st', '3rd'];
-                const icons = ['🥈', '🥇', '🥉'];
+                const top3 = [data[1], data[0], data[2]]; // Rank 2, Rank 1, Rank 3 order
+                const heights = ['h-28', 'h-36', 'h-24'];
+                const bgColors = ['bg-slate-700/80', 'bg-amber-500/30 border-2 border-amber-400', 'bg-amber-800/50'];
+                const medals = ['🥈', '🥇', '🥉'];
 
-                top3.forEach((item, idx) => {
-                    const pod = document.createElement('div');
-                    pod.className = `flex-1 flex flex-col items-center justify-end`;
-
-                    pod.innerHTML = `
-                        <div class="text-center mb-2">
-                            <span class="text-2xl">${icons[idx]}</span>
-                            <p class="text-xs font-bold text-white truncate max-w-[80px] sm:max-w-[110px]">
-                                ${item.name}
-                            </p>
-                            <p class="text-[10px] font-extrabold text-amber-300">${item.score} Pts</p>
-                        </div>
-                        <div class="w-full ${heights[idx]} bg-gradient-to-t ${bgGradients[idx]} rounded-t-2xl border-t-2 shadow-xl flex items-center justify-center text-white font-black text-lg">
-                            ${ranks[idx]}
-                        </div>
+                top3.forEach((item, i) => {
+                    if (!item) return;
+                    const pillar = document.createElement('div');
+                    pillar.className = `flex flex-col items-center justify-end w-24 ${heights[i]} ${bgColors[i]} rounded-t-2xl p-2 text-center transition hover:scale-105`;
+                    pillar.innerHTML = `
+                        <span class="text-xl mb-1">${medals[i]}</span>
+                        <p class="text-xs font-black text-white truncate w-full">${item.name}</p>
+                        <p class="text-[10px] font-bold text-amber-300">${item.score} Pts</p>
                     `;
-                    container.appendChild(pod);
+                    container.appendChild(pillar);
                 });
             }
 
@@ -1330,28 +2008,26 @@
                 tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data hasil peserta.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data peserta ditemukan.</td></tr>`;
                     return;
                 }
 
-                data.forEach((item, index) => {
+                data.forEach((item, idx) => {
+                    const totalQ = (item.correct || 0) + (item.wrong || 0);
+                    const itemAcc = totalQ > 0 ? Math.round((item.correct / totalQ) * 100) : 0;
+                    
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-white/5 transition";
-                    const accuracy = Math.round((item.correct / 20) * 100);
-
+                    tr.className = "hover:bg-white/5 transition border-b border-white/5";
                     tr.innerHTML = `
-                        <td class="p-3 text-center font-bold text-amber-400">#${index + 1}</td>
-                        <td class="p-3 font-semibold text-white">${item.name}</td>
-                        <td class="p-3 text-center font-black text-amber-300">${item.score}</td>
+                        <td class="p-3 text-center font-bold text-amber-400">#${idx + 1}</td>
+                        <td class="p-3 font-bold text-white">${item.name}</td>
+                        <td class="p-3 text-center font-extrabold text-amber-300">${item.score} Pts</td>
+                        <td class="p-3 text-center text-emerald-400">${item.correct || 0} / ${item.wrong || 0}</td>
+                        <td class="p-3 text-center font-bold text-blue-300">${itemAcc}%</td>
+                        <td class="p-3 font-medium text-slate-200">${item.badge || '-'}</td>
+                        <td class="p-3 text-slate-400 text-[10px]">${item.date || '-'}</td>
                         <td class="p-3 text-center">
-                            <span class="text-emerald-400 font-bold">${item.correct}</span> / 
-                            <span class="text-red-400 font-bold">${item.wrong}</span>
-                        </td>
-                        <td class="p-3 text-center font-bold text-blue-300">${accuracy}%</td>
-                        <td class="p-3">${item.badge || '-'}</td>
-                        <td class="p-3 text-slate-400 text-[11px]">${item.date || '-'}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="app.deleteSubmission(${item.id})" class="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/40 transition">
+                            <button onclick="app.deleteSubmission(${item.id})" class="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition">
                                 <i data-lucide="trash" class="w-3.5 h-3.5"></i>
                             </button>
                         </td>
@@ -1361,26 +2037,57 @@
                 lucide.createIcons();
             }
 
+            renderAdminChart(correct, wrong) {
+                const canvas = document.getElementById('admStatsChart');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const total = correct + wrong;
+                if (total === 0) return;
+
+                const correctAngle = (correct / total) * Math.PI * 2;
+
+                // Draw Correct Slice (Green)
+                ctx.beginPath();
+                ctx.moveTo(70, 70);
+                ctx.arc(70, 70, 60, 0, correctAngle);
+                ctx.fillStyle = '#10b981';
+                ctx.fill();
+
+                // Draw Wrong Slice (Red)
+                ctx.beginPath();
+                ctx.moveTo(70, 70);
+                ctx.arc(70, 70, 60, correctAngle, Math.PI * 2);
+                ctx.fillStyle = '#ef4444';
+                ctx.fill();
+
+                // Donut Hole Cutout
+                ctx.beginPath();
+                ctx.arc(70, 70, 35, 0, Math.PI * 2);
+                ctx.fillStyle = '#0f172a';
+                ctx.fill();
+            }
+
             filterAdminTable() {
                 const query = document.getElementById('inputSearchAdmin').value.toLowerCase();
-                const data = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
-                data.sort((a, b) => b.score - a.score);
-                const filtered = data.filter(item => item.name.toLowerCase().includes(query));
+                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                const filtered = submissions.filter(s => s.name.toLowerCase().includes(query));
                 this.renderAdminTable(filtered);
             }
 
             deleteSubmission(id) {
-                if (confirm("Apakah Anda yakin ingin menghapus data peserta ini?")) {
+                if (confirm("Hapus data peserta ini dari rekapitulasi?")) {
                     this.sound.playClick();
-                    let data = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
-                    data = data.filter(item => item.id !== id);
-                    localStorage.setItem('smanda_submissions', JSON.stringify(data));
+                    let submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                    submissions = submissions.filter(s => s.id !== id);
+                    localStorage.setItem('smanda_submissions', JSON.stringify(submissions));
                     this.renderAdminDashboard();
                 }
             }
 
             confirmClearData() {
-                if (confirm("PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH data hasil peserta?")) {
+                if (confirm("PERINGATAN: Apakah Anda yakin ingin MENGHAPUS SELURUH REKAP NILAI PESERTA? Action ini tidak bisa dibatalkan!")) {
                     this.sound.playClick();
                     localStorage.setItem('smanda_submissions', JSON.stringify([]));
                     this.renderAdminDashboard();
@@ -1388,88 +2095,216 @@
             }
 
             exportCSV() {
-                this.sound.playClick();
-                const data = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
-                if (data.length === 0) {
+                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                if (submissions.length === 0) {
                     alert("Tidak ada data untuk diexport!");
                     return;
                 }
 
-                data.sort((a, b) => b.score - a.score);
-
-                let csvContent = "data:text/csv;charset=utf-8,";
-                csvContent += "Rank,Nama Peserta,Skor Akhir,Benar,Salah,Akurasi (%),Lencana,Tanggal\n";
-
-                data.forEach((item, index) => {
-                    const accuracy = Math.round((item.correct / 20) * 100);
-                    const cleanBadge = (item.badge || '').replace(/,/g, '');
-                    csvContent += `${index + 1},"${item.name}",${item.score},${item.correct},${item.wrong},${accuracy}%,"${cleanBadge}","${item.date}"\n`;
+                let csvContent = "data:text/csv;charset=utf-8,Rank,Nama,Skor,Benar,Salah,Lencana,Tanggal\n";
+                submissions.sort((a, b) => b.score - a.score).forEach((s, idx) => {
+                    csvContent += `${idx + 1},"${s.name}",${s.score},${s.correct || 0},${s.wrong || 0},"${s.badge}","${s.date}"\n`;
                 });
 
                 const encodedUri = encodeURI(csvContent);
                 const link = document.createElement("a");
                 link.setAttribute("href", encodedUri);
-                link.setAttribute("download", `Rekap_Amazing_Race_SMANDA_${Date.now()}.csv`);
+                link.setAttribute("download", `Rekap_Nilai_AmazingRace_SMANDA_${new Date().toISOString().slice(0, 10)}.csv`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
 
-            renderAdminChart(correct, wrong) {
-                const canvas = document.getElementById('admStatsChart');
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            switchAdminTab(tab) {
+                this.sound.playClick();
+                const btnRes = document.getElementById('admTabResultsBtn');
+                const btnCrd = document.getElementById('admTabCardsBtn');
+                const btnMem = document.getElementById('admTabMemoryBtn');
+                const secRes = document.getElementById('admSectionResults');
+                const secCrd = document.getElementById('admSectionCards');
+                const secMem = document.getElementById('admSectionMemory');
 
-                const total = correct + wrong;
-                if (total === 0) {
-                    ctx.fillStyle = '#64748b';
-                    ctx.font = '12px Plus Jakarta Sans';
-                    ctx.textAlign = 'center';
-                    ctx.fillText("Belum ada data", canvas.width/2, canvas.height/2);
-                    return;
+                [btnRes, btnCrd, btnMem].forEach(b => {
+                    b.className = "flex-1 md:flex-none px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition flex items-center justify-center gap-1";
+                });
+                [secRes, secCrd, secMem].forEach(s => s.classList.add('hidden'));
+
+                if (tab === 'RESULTS') {
+                    btnRes.className = "flex-1 md:flex-none px-3 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow transition flex items-center justify-center gap-1";
+                    secRes.classList.remove('hidden');
+                } else if (tab === 'CARDS') {
+                    btnCrd.className = "flex-1 md:flex-none px-3 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow transition flex items-center justify-center gap-1";
+                    secCrd.classList.remove('hidden');
+                    this.renderAdminCardsGrid();
+                } else if (tab === 'MEMORY') {
+                    btnMem.className = "flex-1 md:flex-none px-3 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow transition flex items-center justify-center gap-1";
+                    secMem.classList.remove('hidden');
+                    this.renderAdminMemoryGrid();
+                }
+            }
+
+            renderAdminCardsGrid() {
+                const grid = document.getElementById('admCardsGrid');
+                grid.innerHTML = '';
+
+                const programs = JSON.parse(localStorage.getItem('smanda_programs') || '[]');
+                programs.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = "glass-light rounded-2xl p-4 border border-white/10 flex flex-col justify-between space-y-3";
+                    card.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2.5 rounded-xl bg-amber-400/20 text-amber-300 shrink-0">
+                                <i data-lucide="${p.icon || 'book-open'}" class="w-5 h-5"></i>
+                            </div>
+                            <div class="truncate">
+                                <h4 class="font-bold text-white text-xs truncate">${p.program}</h4>
+                                <p class="text-[10px] text-slate-400 truncate">${p.description}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end space-x-2 border-t border-white/5 pt-2">
+                            <button onclick="app.editProgram(${p.id})" class="px-2.5 py-1 rounded-lg bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white font-bold text-[10px] flex items-center gap-1">
+                                <i data-lucide="edit" class="w-3 h-3"></i> Edit
+                            </button>
+                            <button onclick="app.deleteProgram(${p.id})" class="px-2.5 py-1 rounded-lg bg-red-600/30 hover:bg-red-600 text-red-300 hover:text-white font-bold text-[10px] flex items-center gap-1">
+                                <i data-lucide="trash" class="w-3 h-3"></i> Hapus
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                lucide.createIcons();
+            }
+
+            openAddProgramModal() {
+                this.sound.playClick();
+                document.getElementById('editProgramId').value = '';
+                document.getElementById('modalProgramCrudTitle').innerText = "TAMBAH PROGRAM UNGGULAN BARU";
+                document.getElementById('pInputProgram').value = '';
+                document.getElementById('pInputIcon').value = 'book-open';
+                document.getElementById('pInputDescription').value = '';
+                document.getElementById('pInputGoal').value = '';
+                document.getElementById('pInputBenefit').value = '';
+                document.getElementById('pInputQuestion').value = '';
+                document.getElementById('pInputOptA').value = '';
+                document.getElementById('pInputOptB').value = '';
+                document.getElementById('pInputOptC').value = '';
+                document.getElementById('pInputOptD').value = '';
+
+                document.getElementById('modalProgramCrud').classList.remove('hidden');
+            }
+
+            editProgram(id) {
+                this.sound.playClick();
+                const programs = JSON.parse(localStorage.getItem('smanda_programs') || '[]');
+                const p = programs.find(item => item.id === id);
+                if (!p) return;
+
+                document.getElementById('editProgramId').value = p.id;
+                document.getElementById('modalProgramCrudTitle').innerText = "EDIT PROGRAM UNGGULAN";
+                document.getElementById('pInputProgram').value = p.program;
+                document.getElementById('pInputIcon').value = p.icon || 'book-open';
+                document.getElementById('pInputDescription').value = p.description;
+                document.getElementById('pInputGoal').value = p.goal;
+                document.getElementById('pInputBenefit').value = p.benefit;
+                document.getElementById('pInputQuestion').value = p.question;
+                document.getElementById('pInputOptA').value = p.options[0] || '';
+                document.getElementById('pInputOptB').value = p.options[1] || '';
+                document.getElementById('pInputOptC').value = p.options[2] || '';
+                document.getElementById('pInputOptD').value = p.options[3] || '';
+
+                document.getElementById('modalProgramCrud').classList.remove('hidden');
+            }
+
+            saveProgramData(e) {
+                if (e) e.preventDefault();
+                const editId = document.getElementById('editProgramId').value;
+                let programs = JSON.parse(localStorage.getItem('smanda_programs') || '[]');
+
+                const newProg = {
+                    id: editId ? parseInt(editId) : Date.now(),
+                    program: document.getElementById('pInputProgram').value,
+                    icon: document.getElementById('pInputIcon').value || 'book-open',
+                    description: document.getElementById('pInputDescription').value,
+                    goal: document.getElementById('pInputGoal').value,
+                    benefit: document.getElementById('pInputBenefit').value,
+                    question: document.getElementById('pInputQuestion').value,
+                    options: [
+                        document.getElementById('pInputOptA').value,
+                        document.getElementById('pInputOptB').value,
+                        document.getElementById('pInputOptC').value,
+                        document.getElementById('pInputOptD').value
+                    ],
+                    answer: 0
+                };
+
+                if (editId) {
+                    const idx = programs.findIndex(p => p.id === parseInt(editId));
+                    if (idx !== -1) programs[idx] = newProg;
+                } else {
+                    programs.push(newProg);
                 }
 
-                const correctAngle = (correct / total) * (2 * Math.PI);
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2;
-                const radius = 60;
+                localStorage.setItem('smanda_programs', JSON.stringify(programs));
+                this.sound.playCorrect();
+                this.closeProgramCrudModal();
+                this.renderAdminCardsGrid();
+            }
 
-                // Draw Correct Slice (Emerald)
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, 0, correctAngle);
-                ctx.fillStyle = '#22c55e';
-                ctx.fill();
+            deleteProgram(id) {
+                if (confirm("Hapus program unggulan ini?")) {
+                    this.sound.playClick();
+                    let programs = JSON.parse(localStorage.getItem('smanda_programs') || '[]');
+                    programs = programs.filter(p => p.id !== id);
+                    localStorage.setItem('smanda_programs', JSON.stringify(programs));
+                    this.renderAdminCardsGrid();
+                }
+            }
 
-                // Draw Wrong Slice (Red)
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, correctAngle, 2 * Math.PI);
-                ctx.fillStyle = '#ef4444';
-                ctx.fill();
+            closeProgramCrudModal() {
+                this.sound.playClick();
+                document.getElementById('modalProgramCrud').classList.add('hidden');
+            }
 
-                // Inner Cutout Hole for Donut Chart
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, 38, 0, 2 * Math.PI);
-                ctx.fillStyle = '#0f172a';
-                ctx.fill();
+            renderAdminMemoryGrid() {
+                const grid = document.getElementById('admMemoryGrid');
+                grid.innerHTML = '';
 
-                // Center Text
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 12px Plus Jakarta Sans';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(`${Math.round((correct/total)*100)}% Benar`, centerX, centerY);
+                const pairs = JSON.parse(localStorage.getItem('smanda_memory_pairs') || '[]');
+                pairs.forEach((p, idx) => {
+                    const el = document.createElement('div');
+                    el.className = "glass-light rounded-2xl p-3 border border-white/10 flex items-center justify-between space-x-3";
+                    el.innerHTML = `
+                        <div class="flex items-center space-x-3 truncate">
+                            <div class="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 shrink-0">
+                                <i data-lucide="${p.icon || 'book-open'}" class="w-5 h-5"></i>
+                            </div>
+                            <div class="truncate">
+                                <h4 class="font-bold text-white text-xs truncate">${p.name}</h4>
+                                <p class="text-[10px] text-slate-400 truncate">Key: ${p.pairKey}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-900 text-amber-300">#${idx+1}</span>
+                    `;
+                    grid.appendChild(el);
+                });
+                lucide.createIcons();
+            }
+
+            resetDefaultMemoryPairs() {
+                if (confirm("Reset seluruh data pasangan Memory Card ke setelan awal?")) {
+                    this.sound.playClick();
+                    localStorage.setItem('smanda_memory_pairs', JSON.stringify(DEFAULT_MEMORY_PAIRS));
+                    this.renderAdminMemoryGrid();
+                }
             }
 
             switchView(viewId) {
-                ['viewLogin', 'viewGame', 'viewParticipantFinish', 'viewAdminDashboard'].forEach(id => {
+                ['viewLogin', 'viewGame', 'viewCardGame', 'viewMemoryGame', 'viewParticipantFinish', 'viewAdminDashboard'].forEach(id => {
                     const el = document.getElementById(id);
                     if (id === viewId) {
                         el.classList.remove('hidden');
-                        if (id === 'viewGame' || id === 'viewParticipantFinish') {
-                            el.classList.add('flex');
-                        }
+                        if (id === 'viewGame' || id === 'viewCardGame' || id === 'viewMemoryGame' || id === 'viewParticipantFinish') el.classList.add('flex');
                     } else {
                         el.classList.add('hidden');
                         el.classList.remove('flex');
@@ -1480,6 +2315,7 @@
             backToLogin() {
                 this.sound.playClick();
                 this.sound.stopBGM();
+                document.getElementById('navModeSelector').classList.add('hidden');
                 this.switchView('viewLogin');
             }
 
@@ -1487,9 +2323,16 @@
                 this.sound.playClick();
                 this.switchView('viewLogin');
             }
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
         }
 
-        // Initialize App on DOM Ready
+        // Initialize Application Engine on Load
         let app;
         window.addEventListener('DOMContentLoaded', () => {
             app = new AmazingRaceApp();
