@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMAZING RACE SMAN 2 BREBES - Seberapa Kenal Sekolah Kita?</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            dark: '#0f172a',
+                            gold: '#fbbf24',
+                            goldHover: '#f59e0b'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)' },
+                            '50%': { boxShadow: '0 0 30px rgba(251, 191, 36, 0.8)' },
+                        },
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Glassmorphism Styles */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+        
+        .glass-light {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFE259 0%, #FFA751 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .blue-gradient-bg {
+            background: radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 60%, #020617 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.8);
+        }
+
+        /* Option Hover & Selection States */
+        .option-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(6px);
+            border-color: #60a5fa;
+            background: rgba(59, 130, 246, 0.2);
+        }
+        .option-correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+            animation: pulse 0.5s ease;
+        }
+        .option-wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        /* Circular Timer SVG Animation */
+        .timer-circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 8;
+        }
+        .timer-circle-progress {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+        }
+
+        /* Confetti Canvas */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Background Particle Canvas */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="blue-gradient-bg min-h-screen font-sans text-slate-100 relative overflow-x-hidden select-none">
+
+    <canvas id="bgCanvas"></canvas>
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="relative z-10 min-h-screen flex flex-col justify-between p-3 sm:p-6 max-w-6xl mx-auto">
+
+        <!-- GLOBAL HEADER / AUDIO & ADMIN CONTROLS -->
+        <header class="w-full flex justify-between items-center py-2.5 px-4 glass-light rounded-2xl mb-4 shadow-lg border border-white/10">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.goHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-amber-400 p-0.5 shadow-md flex items-center justify-center">
+                    <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center font-black text-amber-400 text-lg">
+                        S2
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-bold tracking-wide text-white leading-tight">SMAN 2 BREBES</h1>
+                    <p class="text-xs text-blue-300 font-medium">Amazing Race Game</p>
+                </div>
+            </div>
+
+            <!-- Controls (Audio & Admin Panel Access) -->
+            <div class="flex items-center space-x-2">
+                <button id="btnSound" onclick="app.toggleSFX()" title="Efek Suara (SFX)" class="p-2.5 rounded-xl glass-light hover:bg-white/20 transition text-amber-400 flex items-center justify-center">
+                    <i data-lucide="volume-2" class="w-5 h-5"></i>
+                </button>
+                <button id="btnMusic" onclick="app.toggleBGM()" title="Musik Latar (BGM)" class="p-2.5 rounded-xl glass-light hover:bg-white/20 transition text-blue-400 flex items-center justify-center">
+                    <i data-lucide="music" class="w-5 h-5"></i>
+                </button>
+                <button onclick="app.openAdminAuthModal()" title="Mode Admin Guru" class="p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 transition flex items-center gap-1.5 text-xs font-bold px-3">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Panel Admin</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- VIEW 1: LOGIN PESERTA -->
+        <main id="viewLogin" class="flex-1 flex flex-col items-center justify-center my-auto py-6">
+            <div class="w-full max-w-md glass-card rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden border border-blue-500/20 shadow-2xl">
+                <!-- Background Decorative Glow -->
+                <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl"></div>
+
+                <div class="relative mx-auto w-24 h-24 mb-4 rounded-3xl bg-gradient-to-tr from-blue-600 via-amber-400 to-amber-200 p-1 shadow-xl animate-float">
+                    <div class="w-full h-full bg-slate-900 rounded-[22px] flex flex-col items-center justify-center p-2 text-center">
+                        <i data-lucide="school" class="w-10 h-10 text-amber-400 mb-1"></i>
+                        <span class="text-[9px] font-extrabold tracking-widest text-blue-200 uppercase">SMANDA</span>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">
+                    AMAZING RACE
+                </h2>
+                <p class="text-xs sm:text-sm font-semibold gold-gradient-text tracking-wider uppercase mb-6">
+                    "Seberapa Kenal Sekolah Kita?"
+                </p>
+
+                <!-- Login Form -->
+                <form id="formLogin" onsubmit="app.handleLogin(event)" class="space-y-4 text-left">
+                    <div>
+                        <label for="inputName" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                            Nama Peserta
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                            </span>
+                            <input type="text" id="inputName" placeholder="Masukkan Nama Lengkap / Panggilan..." 
+                                autocomplete="off"
+                                class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm font-medium">
+                        </div>
+                        <!-- Validation Message -->
+                        <p id="valError" class="hidden text-xs text-red-400 font-medium mt-1.5 flex items-center gap-1">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5 inline"></i>
+                            <span id="valErrorText">Nama tidak valid.</span>
+                        </p>
+                    </div>
+
+                    <button type="submit" 
+                        class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-bold text-base shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group">
+                        <span>▶ MULAI BERMAIN</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-4 border-t border-white/10 text-xs text-slate-400 flex items-center justify-center gap-1">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i>
+                    <span>Jawab 20 pertanyaan secepat & setepat mungkin!</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW 2: GAMEPLAY AREA (PESERTA BERMAIN) -->
+        <main id="viewGame" class="hidden flex-1 flex-col justify-between my-auto py-2">
+            <!-- DASHBOARD BAR -->
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <!-- Player Name -->
+                <div class="glass-card p-3 rounded-2xl flex items-center space-x-3 border-l-4 border-l-blue-500">
+                    <div class="p-2 rounded-xl bg-blue-500/20 text-blue-400">
+                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                    </div>
+                    <div class="truncate">
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Peserta</p>
+                        <p id="dashPlayer" class="text-sm font-bold text-white truncate">Peserta</p>
+                    </div>
+                </div>
+
+                <!-- Score -->
+                <div class="glass-card p-3 rounded-2xl flex items-center space-x-3 border-l-4 border-l-amber-400">
+                    <div class="p-2 rounded-xl bg-amber-400/20 text-amber-400">
+                        <i data-lucide="star" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Skor</p>
+                        <p id="dashScore" class="text-sm font-bold text-amber-300">0</p>
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div class="glass-card p-3 rounded-2xl flex items-center space-x-3 border-l-4 border-l-emerald-400">
+                    <div class="p-2 rounded-xl bg-emerald-400/20 text-emerald-400">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Soal Ke</p>
+                        <p id="dashProgress" class="text-sm font-bold text-emerald-300">1 / 20</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUIZ CARD -->
+            <div class="glass-card rounded-3xl p-5 sm:p-8 relative border border-white/10 shadow-2xl flex-1 flex flex-col justify-between">
+                <!-- TOP CARD BAR: Category & Circular Timer -->
+                <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
+                    <span id="questionCategory" class="px-3 py-1 rounded-full text-xs font-extrabold tracking-wide uppercase bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        Profil Sekolah
+                    </span>
+
+                    <!-- Circular Animated Timer -->
+                    <div class="relative flex items-center justify-center w-14 h-14">
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <circle class="timer-circle-bg" cx="50" cy="50" r="42"></circle>
+                            <circle id="timerCircle" class="timer-circle-progress" cx="50" cy="50" r="42" 
+                                stroke="#3b82f6" stroke-dasharray="263.89" stroke-dashoffset="0"></circle>
+                        </svg>
+                        <span id="timerText" class="absolute text-base font-extrabold text-white">15</span>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <div class="my-auto py-2">
+                    <p id="questionText" class="text-lg sm:text-2xl font-bold text-white leading-relaxed tracking-wide">
+                        Memuat pertanyaan...
+                    </p>
+                </div>
+
+                <!-- Answer Options Grid -->
+                <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-6">
+                    <!-- Dynamic Answer Option Buttons injected here -->
+                </div>
+
+                <!-- Progress Bar Line -->
+                <div class="w-full bg-slate-800 h-2 rounded-full mt-6 overflow-hidden">
+                    <div id="progressBarFill" class="bg-gradient-to-r from-blue-500 to-amber-400 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW 3: PARTICIPANT FINISH CONFIRMATION (LAYAR SELESAI PESERTA) -->
+        <main id="viewParticipantFinish" class="hidden flex-1 flex-col items-center justify-center my-auto py-6">
+            <div class="w-full max-w-lg glass-card rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden border border-emerald-500/30 shadow-2xl">
+                <!-- Glowing Decoration -->
+                <div class="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
+                
+                <div class="w-20 h-20 mx-auto mb-4 rounded-3xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 flex items-center justify-center animate-bounce-subtle">
+                    <i data-lucide="check-check" class="w-10 h-10"></i>
+                </div>
+
+                <h2 class="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mb-2">
+                    JAWABAN TERKIRIM!
+                </h2>
+                <p class="text-slate-300 text-sm mb-6">
+                    Terima kasih <span id="finishPlayerName" class="text-amber-300 font-bold">Peserta</span>! Kamu telah menyelesaikan petualangan Amazing Race SMAN 2 Brebes.
+                </p>
+
+                <!-- Personal Summary Box -->
+                <div class="glass-light p-4 rounded-2xl mb-6 text-left space-y-3">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Skor Akhir Perolehan:</span>
+                        <span id="finishScore" class="font-extrabold text-amber-400 text-base">0 Pts</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Jawaban Benar:</span>
+                        <span id="finishCorrect" class="font-bold text-emerald-400">0 / 20</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Lencana Yang Diperoleh:</span>
+                        <span id="finishBadge" class="font-bold text-blue-300 flex items-center gap-1">🏆 -</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-900/40 border border-blue-500/30 p-3.5 rounded-2xl text-xs text-blue-200 mb-6 flex items-start gap-2 text-left">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-400 shrink-0 mt-0.5"></i>
+                    <span>Hasil & peringkat akhir seluruh peserta dikelola dan diumumkan langsung oleh <strong>Admin / Guru Pengampu</strong>.</span>
+                </div>
+
+                <button onclick="app.backToLogin()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-black text-sm uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i> Kembali Ke Menu Utama
+                </button>
+            </div>
+        </main>
+
+        <!-- VIEW 4: ADMIN DASHBOARD VIEW (KHUSUS ADMIN/GURU) -->
+        <main id="viewAdminDashboard" class="hidden flex-1 flex-col my-auto py-4 space-y-6">
+            <!-- Admin Dashboard Header Bar -->
+            <div class="glass-card rounded-3xl p-5 border border-amber-400/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-3 bg-amber-400/20 text-amber-400 rounded-2xl border border-amber-400/30">
+                        <i data-lucide="layout-dashboard" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-white uppercase tracking-wider">PANEL KELOLA ADMIN & GURU</h2>
+                        <p class="text-xs text-amber-300">Rekapitulasi Nilai & Peringkat Peserta SMAN 2 Brebes</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <button onclick="app.exportCSV()" class="flex-1 sm:flex-none py-2.5 px-4 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400/40 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                        <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+                    </button>
+                    <button onclick="app.confirmClearData()" class="flex-1 sm:flex-none py-2.5 px-4 rounded-xl bg-red-600/30 hover:bg-red-600/50 border border-red-400/40 text-red-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> Reset Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- ADMIN STAT CARDS -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-blue-500">
+                    <div class="p-2.5 rounded-xl bg-blue-500/20 text-blue-400">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Total Peserta</p>
+                        <p id="admStatTotal" class="text-lg sm:text-2xl font-black text-white">0</p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-amber-400">
+                    <div class="p-2.5 rounded-xl bg-amber-400/20 text-amber-400">
+                        <i data-lucide="trophy" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Skor Tertinggi</p>
+                        <p id="admStatTopScore" class="text-lg sm:text-2xl font-black text-amber-300">0</p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-purple-500">
+                    <div class="p-2.5 rounded-xl bg-purple-500/20 text-purple-400">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Rata-Rata Skor</p>
+                        <p id="admStatAvgScore" class="text-lg sm:text-2xl font-black text-purple-300">0</p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3 border-l-4 border-l-emerald-400">
+                    <div class="p-2.5 rounded-xl bg-emerald-400/20 text-emerald-400">
+                        <i data-lucide="percent" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Rata2 Akurasi</p>
+                        <p id="admStatAccuracy" class="text-lg sm:text-2xl font-black text-emerald-300">0%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PODIUM 3 BESAR SELEKSI ADMIN -->
+            <div class="glass-card rounded-3xl p-6 border border-white/10">
+                <h3 class="text-center font-extrabold text-sm uppercase tracking-widest text-amber-400 mb-6 flex items-center justify-center gap-2">
+                    <i data-lucide="crown" class="w-5 h-5"></i> PODIUM JUARA UTAMA
+                </h3>
+                <div id="admPodiumContainer" class="flex justify-center items-end gap-2 sm:gap-6 min-h-[160px] pt-4">
+                    <!-- Injected 2nd, 1st, 3rd podium pillars dynamically -->
+                </div>
+            </div>
+
+            <!-- DETAIL TABEL LEADERBOARD PESERTA -->
+            <div class="glass-card rounded-3xl p-5 border border-white/10 space-y-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <h3 class="font-bold text-sm text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="list" class="w-4 h-4 text-blue-400"></i> Rekapitulasi Hasil Jawaban Seluruh Peserta
+                    </h3>
+
+                    <!-- Search Filter Bar -->
+                    <div class="relative w-full sm:w-64">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </span>
+                        <input type="text" id="inputSearchAdmin" oninput="app.filterAdminTable()" placeholder="Cari nama peserta..."
+                            class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto rounded-2xl border border-white/10">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/90 text-amber-300 font-extrabold border-b border-white/10 uppercase tracking-wider">
+                                <th class="p-3 text-center">Rank</th>
+                                <th class="p-3">Nama Peserta</th>
+                                <th class="p-3 text-center">Skor</th>
+                                <th class="p-3 text-center">Benar / Salah</th>
+                                <th class="p-3 text-center">Akurasi</th>
+                                <th class="p-3">Lencana Kehormatan</th>
+                                <th class="p-3">Tanggal Selesai</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admTableBody" class="divide-y divide-white/5 text-slate-300 font-medium">
+                            <!-- Injected Table Rows Dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- GRAPH CHART ANALYTICS -->
+            <div class="glass-card rounded-3xl p-5 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex-1 space-y-2">
+                    <h4 class="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-amber-400"></i> Distribusi Performa Keseluruhan
+                    </h4>
+                    <p class="text-xs text-slate-400">
+                        Grafik memvisualisasikan perbandingan akumulasi total jawaban benar vs salah dari seluruh peserta yang pernah bermain.
+                    </p>
+                </div>
+                <div class="relative w-40 h-40 shrink-0">
+                    <canvas id="admStatsChart" width="160" height="160"></canvas>
+                </div>
+            </div>
+
+            <button onclick="app.backToLogin()" class="w-full py-3.5 rounded-2xl glass-light hover:bg-white/20 text-slate-200 font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Keluar Dari Mode Admin
+            </button>
+        </main>
+
+        <!-- MODAL: PIN VERIFICATION UNTUK ADMIN -->
+        <div id="modalAdminAuth" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+            <div class="glass-card max-w-sm w-full rounded-3xl p-6 border border-amber-500/30 shadow-2xl relative">
+                <div class="text-center mb-5">
+                    <div class="inline-flex p-3 bg-amber-400/20 text-amber-400 rounded-2xl mb-2">
+                        <i data-lucide="lock" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-white uppercase tracking-wide">VERIFIKASI ADMIN GURU</h3>
+                    <p class="text-xs text-slate-300">Masukkan Kode PIN Admin untuk mengakses hasil</p>
+                </div>
+
+                <form onsubmit="app.verifyAdminPin(event)" class="space-y-4">
+                    <div>
+                        <input type="password" id="inputAdminPin" placeholder="Masukkan Kode PIN (Default: 1234)" 
+                            class="w-full px-4 py-3 rounded-2xl bg-slate-900/90 border border-slate-700 text-center text-lg font-bold text-amber-300 placeholder-slate-500 tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        <p id="adminPinError" class="hidden text-xs text-red-400 text-center font-medium mt-1">PIN Salah! Coba lagi.</p>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button type="button" onclick="app.closeAdminAuthModal()" class="flex-1 py-3 rounded-xl glass-light hover:bg-white/10 text-slate-300 font-bold text-xs uppercase">
+                            Batal
+                        </button>
+                        <button type="submit" class="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase shadow-lg">
+                            Masuk Admin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="py-3 text-center text-[11px] text-slate-400 font-medium">
+            &copy; 2026 SMAN 2 Brebes. All rights reserved. Game Edukasi Interaktif SMAN 2 Brebes.
+        </footer>
+    </div>
+
+    <script>
+        // 20 AUTHENTIC QUESTIONS ABOUT SMAN 2 BREBES
+        const QUESTIONS_DATA = [
+            {
+                id: 1,
+                category: "Profil Sekolah",
+                question: "Apa julukan populer dan kebanggaan dari SMAN 2 Brebes?",
+                options: ["Smanda Brebes", "Smarza Brebes", "Smasa Brebes", "Smanti Brebes"],
+                answer: 0
+            },
+            {
+                id: 2,
+                category: "Sejarah Sekolah",
+                question: "SMAN 2 Brebes didirikan untuk memenuhi kebutuhan pendidikan menengah berkualitas tinggi di Kabupaten Brebes pada tahun...",
+                options: ["1984", "1978", "1990", "1995"],
+                answer: 0
+            },
+            {
+                id: 3,
+                category: "Budaya Sekolah",
+                question: "Budaya 5S yang senantiasa diterapkan oleh warga SMAN 2 Brebes adalah...",
+                options: [
+                    "Senyum, Sapa, Salam, Sopan, Santun",
+                    "Semangat, Setia, Santun, Sapta, Sukses",
+                    "Salam, Sehat, Selamat, Santun, Sigap",
+                    "Senyum, Santai, Serius, Sukses, Sohor"
+                ],
+                answer: 0
+            },
+            {
+                id: 4,
+                category: "Fasilitas",
+                question: "Fasilitas perpustakaan digital dan ruang baca nyaman di SMAN 2 Brebes dirancang untuk mendukung program...",
+                options: ["Literasi Sekolah", "Ekskul Otomotif", "Pentas Seni", "Olimpiade Olahraga"],
+                answer: 0
+            },
+            {
+                id: 5,
+                category: "Digitalisasi",
+                question: "Wujud nyata digitalisasi sekolah di SMAN 2 Brebes terlihat dalam penerapan...",
+                options: [
+                    "Ujian Berbasis Komputer/CBT & Presensi Digital",
+                    "Papan tulis kapur tradisional",
+                    "Surat-menyurat manual tanpa email",
+                    "Pengumuman dengan pengeras suara saja"
+                ],
+                answer: 0
+            },
+            {
+                id: 6,
+                category: "Prestasi",
+                question: "Siswa SMAN 2 Brebes sering mengukir prestasi gemilang hingga tingkat provinsi & nasional dalam ajang...",
+                options: [
+                    "KSN (Kompetisi Sains Nasional) & O2SN",
+                    "Lomba balap liar",
+                    "Kompetisi E-Sport ilegal",
+                    "Festival Kuliner Tradisional"
+                ],
+                answer: 0
+            },
+            {
+                id: 7,
+                category: "Ekstrakurikuler",
+                question: "Ekstrakurikuler Wajib yang membentuk kedisiplinan dan karakter kepemimpinan siswa di SMA adalah...",
+                options: ["Pramuka", "PMR", "Paskibra", "KIR"],
+                answer: 0
+            },
+            {
+                id: 8,
+                category: "Program Sekolah",
+                question: "Program sekolah adiwiyata bertujuan untuk mewujudkan lingkungan SMAN 2 Brebes yang...",
+                options: [
+                    "Bersih, Hijau, Asri, dan Berwawasan Lingkungan",
+                    "Penuh dengan gedung pencakar langit",
+                    "Mewah dan serba tertutup",
+                    "Khusus untuk area industri"
+                ],
+                answer: 0
+            },
+            {
+                id: 9,
+                category: "Guru & Staf",
+                question: "Peran utama Bapak/Ibu Guru Inspiratif di SMAN 2 Brebes tidak hanya mengajar, tetapi juga...",
+                options: [
+                    "Membimbing, menuntun karakter, dan mendampingi potensi siswa",
+                    "Hanya memberikan tugas tanpa evaluasi",
+                    "Mengatur jadwal angkutan umum",
+                    "Menjaga gerbang utama setiap jam"
+                ],
+                answer: 0
+            },
+            {
+                id: 10,
+                category: "Kegiatan Sekolah",
+                question: "Kegiatan tahunan yang menjadi wadah kebolehan bakat seni dan kreasi siswa SMAN 2 Brebes adalah...",
+                options: [
+                    "Pentas Seni (Pensi) & Panen Karya P5",
+                    "Bazar Murah Kecamatan",
+                    "Kerja Bakti Antar Desa",
+                    "Kunjungan Industri Luar Negeri"
+                ],
+                answer: 0
+            },
+            {
+                id: 11,
+                category: "Profil Sekolah",
+                question: "Warna utama yang mencerminkan ketenangan, keunggulan, dan kejayaan pada identitas SMAN 2 Brebes adalah...",
+                options: ["Biru & Emas", "Merah & Hitam", "Hijau & Merah", "Ungu & Cokelat"],
+                answer: 0
+            },
+            {
+                id: 12,
+                category: "Fasilitas",
+                question: "Laboratorium yang digunakan siswa SMAN 2 Brebes untuk praktik pengamatan sel dan reaksi kimia adalah...",
+                options: [
+                    "Laboratorium IPA (Biologi/Kimia/Fisika)",
+                    "Laboratorium Bahasa Asing",
+                    "Bengkel Las",
+                    "Ruang Karawitan"
+                ],
+                answer: 0
+            },
+            {
+                id: 13,
+                category: "Budaya Sekolah",
+                question: "Slogan pembelajaran Kurikulum Merdeka yang dijunjung di SMAN 2 Brebes menekankan pada profil...",
+                options: [
+                    "Pelajar Pancasila",
+                    "Siswa Serba Bisa",
+                    "Generasi Emas Tanpa Batas",
+                    "Pemuda Mandiri Cerdas"
+                ],
+                answer: 0
+            },
+            {
+                id: 14,
+                category: "Ekstrakurikuler",
+                question: "Wadah bagi siswa SMAN 2 Brebes yang berminat pada bidang penelitian ilmiah dan karya tulis adalah...",
+                options: [
+                    "KIR (Kelompok Ilmiah Remaja)",
+                    "Paskibraka",
+                    "Pencak Silat",
+                    "Teater Sekolah"
+                ],
+                answer: 0
+            },
+            {
+                id: 15,
+                category: "Kegiatan Sekolah",
+                question: "Upacara Bendera di SMAN 2 Brebes rutin dilaksanakan setiap hari Senin untuk menanamkan jiwa...",
+                options: ["Nasionalisme & Cinta Tanah Air", "Keberanian Bertarung", "Sikap Individualis", "Kompetisi Ketat"],
+                answer: 0
+            },
+            {
+                id: 16,
+                category: "Digitalisasi",
+                question: "Platform atau media utama yang digunakan untuk membagikan informasi resmi dan prestasi SMAN 2 Brebes adalah...",
+                options: [
+                    "Website Resmi Sekolah & Media Sosial Resmi",
+                    "Mading Kertas Pasar",
+                    "Brochure Cetak Harian",
+                    "Pesan Singkat Radio Lokal"
+                ],
+                answer: 0
+            },
+            {
+                id: 17,
+                category: "Program Sekolah",
+                question: "Program Bimbingan Konseling (BK) di SMAN 2 Brebes berfokus membantu siswa dalam...",
+                options: [
+                    "Pengembangan diri, karir studi lanjut, dan pemecahan masalah",
+                    "Pembersihan area taman",
+                    "Pembayaran pendaftaran ulang",
+                    "Penjualan perlengkapan sekolah"
+                ],
+                answer: 0
+            },
+            {
+                id: 18,
+                category: "Prestasi",
+                question: "Tim olahraga SMAN 2 Brebes sering menorehkan kebanggaan dalam cabang olahraga...",
+                options: ["Bola Basket & Futsal", "Formula 1", "Ski Es", "Golf Profesional"],
+                answer: 0
+            },
+            {
+                id: 19,
+                category: "Budaya Sekolah",
+                question: "Karakter utama yang terus ditanamkan di Smanda Brebes agar siswa siap menghadapi masa depan adalah...",
+                options: [
+                    "Beriman, Bertakwa, Cerdas, & Berkarakter Mulia",
+                    "Apatis dan Menutup Diri",
+                    "Menghalalkan Segala Cara",
+                    "Pasrah Tanpa Usaha"
+                ],
+                answer: 0
+            },
+            {
+                id: 20,
+                category: "Profil Sekolah",
+                question: "Lulusan SMAN 2 Brebes banyak diterima di berbagai PTN favorit Indonesia melalui jalur...",
+                options: ["SNBP, SNBT, & Mandiri PTN", "Jalur Khusus Tanpa Tes", "Undangan Langsung Kerja", "Beasiswa Luar Negeri Tanpa Seleksi"],
+                answer: 0
+            }
+        ];
+
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.sfxMuted = false;
+                this.bgmMuted = false;
+                this.bgmInterval = null;
+            }
+
+            initCtx() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTone(freq, type, duration, startVol = 0.2, endVol = 0.001) {
+                if (this.sfxMuted) return;
+                try {
+                    this.initCtx();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(startVol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(endVol, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            playClick() {
+                this.playTone(800, 'sine', 0.08, 0.15);
+            }
+
+            playCorrect() {
+                if (this.sfxMuted) return;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, index) => {
+                    setTimeout(() => {
+                        this.playTone(freq, 'triangle', 0.2, 0.25);
+                    }, index * 70);
+                });
+            }
+
+            playWrong() {
+                if (this.sfxMuted) return;
+                try {
+                    this.initCtx();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.35);
+                    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.35);
+                } catch(e) {}
+            }
+
+            playTick() {
+                this.playTone(1200, 'sine', 0.04, 0.08);
+            }
+
+            playVictoryFanfare() {
+                if (this.sfxMuted) return;
+                const notes = [
+                    {f: 523.25, d: 0.15}, {f: 659.25, d: 0.15}, {f: 783.99, d: 0.15},
+                    {f: 1046.50, d: 0.4}, {f: 880, d: 0.2}, {f: 1046.50, d: 0.6}
+                ];
+                let time = 0;
+                notes.forEach(note => {
+                    setTimeout(() => {
+                        this.playTone(note.f, 'triangle', note.d, 0.3);
+                    }, time);
+                    time += note.d * 1000;
+                });
+            }
+
+            startBGM() {
+                if (this.bgmMuted || this.bgmInterval) return;
+                this.initCtx();
+                const scale = [261.63, 293.66, 329.63, 392.00, 440.00];
+                let step = 0;
+                this.bgmInterval = setInterval(() => {
+                    if (this.bgmMuted) return;
+                    const freq = scale[step % scale.length];
+                    this.playTone(freq, 'sine', 0.3, 0.03, 0.001);
+                    step++;
+                }, 400);
+            }
+
+            stopBGM() {
+                if (this.bgmInterval) {
+                    clearInterval(this.bgmInterval);
+                    this.bgmInterval = null;
+                }
+            }
+        }
+
+        class ConfettiSystem {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.animId = null;
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            burst() {
+                const colors = ['#3b82f6', '#fbbf24', '#34d399', '#f43f5e', '#a855f7'];
+                for (let i = 0; i < 120; i++) {
+                    this.particles.push({
+                        x: this.canvas.width / 2,
+                        y: this.canvas.height / 2,
+                        vx: (Math.random() - 0.5) * 16,
+                        vy: (Math.random() - 0.7) * 16,
+                        size: Math.random() * 8 + 4,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        rotation: Math.random() * 360,
+                        vRot: (Math.random() - 0.5) * 10,
+                        life: 1
+                    });
+                }
+                if (!this.animId) this.animate();
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.particles.forEach((p, idx) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.3;
+                    p.rotation += p.vRot;
+                    p.life -= 0.012;
+
+                    this.ctx.save();
+                    this.ctx.translate(p.x, p.y);
+                    this.ctx.rotate((p.rotation * Math.PI) / 180);
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.globalAlpha = Math.max(0, p.life);
+                    this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    this.ctx.restore();
+
+                    if (p.life <= 0) this.particles.splice(idx, 1);
+                });
+
+                if (this.particles.length > 0) {
+                    this.animId = requestAnimationFrame(() => this.animate());
+                } else {
+                    this.animId = null;
+                }
+            }
+        }
+
+        class BackgroundParticles {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.dots = [];
+                this.resize();
+                this.init();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            init() {
+                this.dots = [];
+                for (let i = 0; i < 45; i++) {
+                    this.dots.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        r: Math.random() * 2 + 1,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        alpha: Math.random() * 0.5 + 0.2
+                    });
+                }
+                this.animate();
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.dots.forEach(d => {
+                    d.x += d.vx;
+                    d.y += d.vy;
+                    if (d.x < 0 || d.x > this.canvas.width) d.vx *= -1;
+                    if (d.y < 0 || d.y > this.canvas.height) d.vy *= -1;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(147, 197, 253, ${d.alpha})`;
+                    this.ctx.fill();
+                });
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        class AmazingRaceApp {
+            constructor() {
+                this.sound = new SoundEngine();
+                this.confetti = new ConfettiSystem('confettiCanvas');
+                this.bgParticles = new BackgroundParticles('bgCanvas');
+
+                // Game State
+                this.playerName = '';
+                this.questions = [];
+                this.currentIndex = 0;
+                this.score = 0;
+                this.correctCount = 0;
+                this.wrongCount = 0;
+                this.timerInterval = null;
+                this.timeRemaining = 15;
+                this.isAnsweringAllowed = false;
+
+                // Admin PIN (Default: 1234)
+                this.ADMIN_PIN = "1234";
+
+                this.initSubmissionsStorage();
+            }
+
+            initSubmissionsStorage() {
+                if (!localStorage.getItem('smanda_submissions')) {
+                    // Initial Dummy Submissions for testing
+                    const initialData = [
+                        { id: 1, name: "Ahmad Smanda", score: 2850, correct: 19, wrong: 1, badge: "Duta SMAN 2 Brebes", date: "2026-08-01 08:30" },
+                        { id: 2, name: "Siti Rahmawati", score: 2600, correct: 18, wrong: 2, badge: "Duta SMAN 2 Brebes", date: "2026-08-01 09:15" },
+                        { id: 3, name: "Budi Santoso", score: 2400, correct: 17, wrong: 3, badge: "Guru Inspiratif", date: "2026-08-01 10:00" },
+                        { id: 4, name: "Dewi Lestari", score: 2150, correct: 15, wrong: 5, badge: "Guru Inspiratif", date: "2026-08-01 11:20" },
+                        { id: 5, name: "Eko Prasetyo", score: 1900, correct: 14, wrong: 6, badge: "Guru Inovatif", date: "2026-08-01 13:45" }
+                    ];
+                    localStorage.setItem('smanda_submissions', JSON.stringify(initialData));
+                }
+            }
+
+            toggleSFX() {
+                this.sound.sfxMuted = !this.sound.sfxMuted;
+                const btn = document.getElementById('btnSound');
+                btn.classList.toggle('text-slate-500', this.sound.sfxMuted);
+                btn.classList.toggle('text-amber-400', !this.sound.sfxMuted);
+                this.sound.playClick();
+            }
+
+            toggleBGM() {
+                this.sound.bgmMuted = !this.sound.bgmMuted;
+                const btn = document.getElementById('btnMusic');
+                btn.classList.toggle('text-slate-500', this.sound.bgmMuted);
+                btn.classList.toggle('text-blue-400', !this.sound.bgmMuted);
+                
+                if (this.sound.bgmMuted) {
+                    this.sound.stopBGM();
+                } else {
+                    this.sound.startBGM();
+                }
+            }
+
+            handleLogin(e) {
+                e.preventDefault();
+                this.sound.playClick();
+                const input = document.getElementById('inputName');
+                const valError = document.getElementById('valError');
+                const valErrorText = document.getElementById('valErrorText');
+                const val = input.value.trim();
+
+                if (val.length < 3 || val.length > 30) {
+                    valErrorText.innerText = 'Nama harus antara 3 - 30 karakter!';
+                    valError.classList.remove('hidden');
+                    return;
+                }
+                if (/^\d+$/.test(val)) {
+                    valErrorText.innerText = 'Nama tidak boleh hanya berupa angka!';
+                    valError.classList.remove('hidden');
+                    return;
+                }
+
+                valError.classList.add('hidden');
+                this.playerName = val;
+
+                this.startGame();
+            }
+
+            startGame() {
+                this.score = 0;
+                this.correctCount = 0;
+                this.wrongCount = 0;
+                this.currentIndex = 0;
+
+                this.questions = JSON.parse(JSON.stringify(QUESTIONS_DATA));
+                this.shuffleArray(this.questions);
+
+                document.getElementById('dashPlayer').innerText = this.playerName;
+                document.getElementById('dashScore').innerText = '0';
+                document.getElementById('dashProgress').innerText = `1 / ${this.questions.length}`;
+
+                this.switchView('viewGame');
+                this.sound.startBGM();
+                this.loadQuestion();
+            }
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            loadQuestion() {
+                if (this.currentIndex >= this.questions.length) {
+                    this.finishGame();
+                    return;
+                }
+
+                this.isAnsweringAllowed = true;
+                const q = this.questions[this.currentIndex];
+
+                const originalOptions = q.options.map((opt, idx) => ({ text: opt, isCorrect: idx === q.answer }));
+                this.shuffleArray(originalOptions);
+
+                document.getElementById('dashProgress').innerText = `${this.currentIndex + 1} / ${this.questions.length}`;
+                document.getElementById('questionCategory').innerText = q.category;
+                document.getElementById('questionText').innerText = q.question;
+
+                const container = document.getElementById('optionsContainer');
+                container.innerHTML = '';
+
+                originalOptions.forEach((optObj, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `option-btn w-full p-4 rounded-2xl glass-light border border-white/15 text-left text-sm sm:text-base font-semibold text-slate-100 flex items-center justify-between group`;
+                    btn.onclick = () => this.handleAnswer(optObj.isCorrect, btn);
+                    
+                    const prefix = ['A', 'B', 'C', 'D'][idx];
+                    btn.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-300 font-extrabold text-xs flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition">
+                                ${prefix}
+                            </span>
+                            <span>${optObj.text}</span>
+                        </div>
+                    `;
+                    btn.dataset.correct = optObj.isCorrect;
+                    container.appendChild(btn);
+                });
+
+                const pct = ((this.currentIndex) / this.questions.length) * 100;
+                document.getElementById('progressBarFill').style.width = `${pct}%`;
+
+                this.startTimer();
+            }
+
+            startTimer() {
+                clearInterval(this.timerInterval);
+                this.timeRemaining = 15;
+                this.updateTimerUI();
+
+                this.timerInterval = setInterval(() => {
+                    this.timeRemaining--;
+                    this.updateTimerUI();
+                    this.sound.playTick();
+
+                    if (this.timeRemaining <= 0) {
+                        clearInterval(this.timerInterval);
+                        this.handleAnswer(false, null);
+                    }
+                }, 1000);
+            }
+
+            updateTimerUI() {
+                const timerText = document.getElementById('timerText');
+                const circle = document.getElementById('timerCircle');
+                timerText.innerText = this.timeRemaining;
+
+                const offset = 263.89 - (this.timeRemaining / 15) * 263.89;
+                circle.style.strokeDashoffset = offset;
+
+                if (this.timeRemaining > 8) {
+                    circle.style.stroke = "#3b82f6";
+                } else if (this.timeRemaining > 4) {
+                    circle.style.stroke = "#f59e0b";
+                } else {
+                    circle.style.stroke = "#ef4444";
+                }
+            }
+
+            handleAnswer(isCorrect, selectedBtn) {
+                if (!this.isAnsweringAllowed) return;
+                this.isAnsweringAllowed = false;
+                clearInterval(this.timerInterval);
+
+                const optionsBtns = document.querySelectorAll('.option-btn');
+                optionsBtns.forEach(btn => btn.disabled = true);
+
+                if (isCorrect) {
+                    this.sound.playCorrect();
+                    if (selectedBtn) selectedBtn.classList.add('option-correct');
+
+                    let bonus = 0;
+                    const timeUsed = 15 - this.timeRemaining;
+                    if (timeUsed < 5) bonus = 50;
+                    else if (timeUsed <= 10) bonus = 30;
+                    else bonus = 20;
+
+                    this.score += (100 + bonus);
+                    this.correctCount++;
+                    this.confetti.burst();
+                } else {
+                    this.sound.playWrong();
+                    if (selectedBtn) selectedBtn.classList.add('option-wrong');
+                    this.wrongCount++;
+
+                    optionsBtns.forEach(btn => {
+                        if (btn.dataset.correct === 'true') {
+                            btn.classList.add('option-correct');
+                        }
+                    });
+                }
+
+                document.getElementById('dashScore').innerText = this.score;
+
+                setTimeout(() => {
+                    this.currentIndex++;
+                    this.loadQuestion();
+                }, 1200);
+            }
+
+            finishGame() {
+                clearInterval(this.timerInterval);
+                this.sound.playVictoryFanfare();
+
+                const badge = this.calculateBadge(this.score);
+
+                // Save Submission to LocalStorage for Admin
+                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                const now = new Date();
+                const formattedDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+                submissions.push({
+                    id: Date.now(),
+                    name: this.playerName,
+                    score: this.score,
+                    correct: this.correctCount,
+                    wrong: this.wrongCount,
+                    badge: `${badge.icon} ${badge.title}`,
+                    date: formattedDate
+                });
+
+                localStorage.setItem('smanda_submissions', JSON.stringify(submissions));
+
+                // Populate Participant Finish UI
+                document.getElementById('finishPlayerName').innerText = this.playerName;
+                document.getElementById('finishScore').innerText = `${this.score} Pts`;
+                document.getElementById('finishCorrect').innerText = `${this.correctCount} / ${this.questions.length}`;
+                document.getElementById('finishBadge').innerText = `${badge.icon} ${badge.title}`;
+
+                this.switchView('viewParticipantFinish');
+                this.confetti.burst();
+            }
+
+            calculateBadge(score) {
+                if (score >= 2500) return { title: "Duta SMAN 2 Brebes", icon: "🏆" };
+                if (score >= 2000) return { title: "Guru Inspiratif", icon: "⭐" };
+                if (score >= 1500) return { title: "Guru Inovatif", icon: "💡" };
+                if (score >= 1000) return { title: "Guru Kolaboratif", icon: "🤝" };
+                return { title: "Guru Bertumbuh", icon: "🌱" };
+            }
+
+            openAdminAuthModal() {
+                this.sound.playClick();
+                document.getElementById('inputAdminPin').value = '';
+                document.getElementById('adminPinError').classList.add('hidden');
+                document.getElementById('modalAdminAuth').classList.remove('hidden');
+            }
+
+            closeAdminAuthModal() {
+                this.sound.playClick();
+                document.getElementById('modalAdminAuth').classList.add('hidden');
+            }
+
+            verifyAdminPin(e) {
+                e.preventDefault();
+                const pinInput = document.getElementById('inputAdminPin').value.trim();
+                if (pinInput === this.ADMIN_PIN) {
+                    this.sound.playClick();
+                    document.getElementById('modalAdminAuth').classList.add('hidden');
+                    this.renderAdminDashboard();
+                    this.switchView('viewAdminDashboard');
+                } else {
+                    this.sound.playWrong();
+                    document.getElementById('adminPinError').classList.remove('hidden');
+                }
+            }
+
+            renderAdminDashboard() {
+                const data = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                data.sort((a, b) => b.score - a.score);
+
+                // Stats calculation
+                const total = data.length;
+                const topScore = total > 0 ? data[0].score : 0;
+                const totalScoreSum = data.reduce((acc, curr) => acc + curr.score, 0);
+                const avgScore = total > 0 ? Math.round(totalScoreSum / total) : 0;
+
+                let totalCorrect = 0;
+                let totalAnswers = 0;
+                data.forEach(item => {
+                    totalCorrect += item.correct;
+                    totalAnswers += (item.correct + item.wrong);
+                });
+                const avgAccuracy = totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
+
+                document.getElementById('admStatTotal').innerText = total;
+                document.getElementById('admStatTopScore').innerText = topScore;
+                document.getElementById('admStatAvgScore').innerText = avgScore;
+                document.getElementById('admStatAccuracy').innerText = `${avgAccuracy}%`;
+
+                this.renderAdminPodium(data);
+                this.renderAdminTable(data);
+                this.renderAdminChart(totalCorrect, totalAnswers - totalCorrect);
+            }
+
+            renderAdminPodium(leaderboard) {
+                const container = document.getElementById('admPodiumContainer');
+                container.innerHTML = '';
+
+                const top3 = [
+                    leaderboard[1] || { name: "-", score: 0 },
+                    leaderboard[0] || { name: "-", score: 0 },
+                    leaderboard[2] || { name: "-", score: 0 }
+                ];
+
+                const heights = ['h-28 sm:h-36', 'h-36 sm:h-44', 'h-24 sm:h-28'];
+                const bgGradients = [
+                    'from-slate-400 to-slate-600 border-slate-300',
+                    'from-amber-400 to-amber-600 border-amber-300',
+                    'from-amber-700 to-amber-900 border-amber-600'
+                ];
+                const ranks = ['2nd', '1st', '3rd'];
+                const icons = ['🥈', '🥇', '🥉'];
+
+                top3.forEach((item, idx) => {
+                    const pod = document.createElement('div');
+                    pod.className = `flex-1 flex flex-col items-center justify-end`;
+
+                    pod.innerHTML = `
+                        <div class="text-center mb-2">
+                            <span class="text-2xl">${icons[idx]}</span>
+                            <p class="text-xs font-bold text-white truncate max-w-[80px] sm:max-w-[110px]">
+                                ${item.name}
+                            </p>
+                            <p class="text-[10px] font-extrabold text-amber-300">${item.score} Pts</p>
+                        </div>
+                        <div class="w-full ${heights[idx]} bg-gradient-to-t ${bgGradients[idx]} rounded-t-2xl border-t-2 shadow-xl flex items-center justify-center text-white font-black text-lg">
+                            ${ranks[idx]}
+                        </div>
+                    `;
+                    container.appendChild(pod);
+                });
+            }
+
+            renderAdminTable(data) {
+                const tbody = document.getElementById('admTableBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data hasil peserta.</td></tr>`;
+                    return;
+                }
+
+                data.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-white/5 transition";
+                    const accuracy = Math.round((item.correct / 20) * 100);
+
+                    tr.innerHTML = `
+                        <td class="p-3 text-center font-bold text-amber-400">#${index + 1}</td>
+                        <td class="p-3 font-semibold text-white">${item.name}</td>
+                        <td class="p-3 text-center font-black text-amber-300">${item.score}</td>
+                        <td class="p-3 text-center">
+                            <span class="text-emerald-400 font-bold">${item.correct}</span> / 
+                            <span class="text-red-400 font-bold">${item.wrong}</span>
+                        </td>
+                        <td class="p-3 text-center font-bold text-blue-300">${accuracy}%</td>
+                        <td class="p-3">${item.badge || '-'}</td>
+                        <td class="p-3 text-slate-400 text-[11px]">${item.date || '-'}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="app.deleteSubmission(${item.id})" class="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/40 transition">
+                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                lucide.createIcons();
+            }
+
+            filterAdminTable() {
+                const query = document.getElementById('inputSearchAdmin').value.toLowerCase();
+                const data = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                data.sort((a, b) => b.score - a.score);
+                const filtered = data.filter(item => item.name.toLowerCase().includes(query));
+                this.renderAdminTable(filtered);
+            }
+
+            deleteSubmission(id) {
+                if (confirm("Apakah Anda yakin ingin menghapus data peserta ini?")) {
+                    this.sound.playClick();
+                    let data = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                    data = data.filter(item => item.id !== id);
+                    localStorage.setItem('smanda_submissions', JSON.stringify(data));
+                    this.renderAdminDashboard();
+                }
+            }
+
+            confirmClearData() {
+                if (confirm("PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH data hasil peserta?")) {
+                    this.sound.playClick();
+                    localStorage.setItem('smanda_submissions', JSON.stringify([]));
+                    this.renderAdminDashboard();
+                }
+            }
+
+            exportCSV() {
+                this.sound.playClick();
+                const data = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                if (data.length === 0) {
+                    alert("Tidak ada data untuk diexport!");
+                    return;
+                }
+
+                data.sort((a, b) => b.score - a.score);
+
+                let csvContent = "data:text/csv;charset=utf-8,";
+                csvContent += "Rank,Nama Peserta,Skor Akhir,Benar,Salah,Akurasi (%),Lencana,Tanggal\n";
+
+                data.forEach((item, index) => {
+                    const accuracy = Math.round((item.correct / 20) * 100);
+                    const cleanBadge = (item.badge || '').replace(/,/g, '');
+                    csvContent += `${index + 1},"${item.name}",${item.score},${item.correct},${item.wrong},${accuracy}%,"${cleanBadge}","${item.date}"\n`;
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `Rekap_Amazing_Race_SMANDA_${Date.now()}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            renderAdminChart(correct, wrong) {
+                const canvas = document.getElementById('admStatsChart');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const total = correct + wrong;
+                if (total === 0) {
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '12px Plus Jakarta Sans';
+                    ctx.textAlign = 'center';
+                    ctx.fillText("Belum ada data", canvas.width/2, canvas.height/2);
+                    return;
+                }
+
+                const correctAngle = (correct / total) * (2 * Math.PI);
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const radius = 60;
+
+                // Draw Correct Slice (Emerald)
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, 0, correctAngle);
+                ctx.fillStyle = '#22c55e';
+                ctx.fill();
+
+                // Draw Wrong Slice (Red)
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, correctAngle, 2 * Math.PI);
+                ctx.fillStyle = '#ef4444';
+                ctx.fill();
+
+                // Inner Cutout Hole for Donut Chart
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 38, 0, 2 * Math.PI);
+                ctx.fillStyle = '#0f172a';
+                ctx.fill();
+
+                // Center Text
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px Plus Jakarta Sans';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${Math.round((correct/total)*100)}% Benar`, centerX, centerY);
+            }
+
+            switchView(viewId) {
+                ['viewLogin', 'viewGame', 'viewParticipantFinish', 'viewAdminDashboard'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (id === viewId) {
+                        el.classList.remove('hidden');
+                        if (id === 'viewGame' || id === 'viewParticipantFinish') {
+                            el.classList.add('flex');
+                        }
+                    } else {
+                        el.classList.add('hidden');
+                        el.classList.remove('flex');
+                    }
+                });
+            }
+
+            backToLogin() {
+                this.sound.playClick();
+                this.sound.stopBGM();
+                this.switchView('viewLogin');
+            }
+
+            goHome() {
+                this.sound.playClick();
+                this.switchView('viewLogin');
+            }
+        }
+
+        // Initialize App on DOM Ready
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new AmazingRaceApp();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
