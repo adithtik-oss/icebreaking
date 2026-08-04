@@ -10,6 +10,104 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Firebase Cloud Storage Module (Real-Time Multi-Device Sync) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'smanda-amazing-race';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "AIzaSyDummyKeyForFallbackOnly",
+                authDomain: "smanda-amazing-race.firebaseapp.com",
+                projectId: "smanda-amazing-race",
+                storageBucket: "smanda-amazing-race.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:123456"
+            };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const auth = getAuth(firebaseApp);
+        const db = getFirestore(firebaseApp);
+
+        window.db = db;
+        window.appId = appId;
+        window.cloudSubmissions = [];
+
+        async function initCloudSync() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                // RULE 1: Strict Firestore Public Collection Path
+                const subCol = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
+                
+                // Real-time listener across all devices
+                onSnapshot(subCol, (snapshot) => {
+                    const submissions = [];
+                    snapshot.forEach((docSnap) => {
+                        submissions.push({ docId: docSnap.id, ...docSnap.data() });
+                    });
+                    // RULE 2: Sort in memory
+                    submissions.sort((a, b) => (b.score || 0) - (a.score || 0));
+                    window.cloudSubmissions = submissions;
+
+                    if (window.app && typeof window.app.onCloudSubmissionsUpdated === 'function') {
+                        window.app.onCloudSubmissionsUpdated(submissions);
+                    }
+                }, (err) => {
+                    console.error("Firestore sync error:", err);
+                });
+            } catch (err) {
+                console.error("Firebase Auth/Init error:", err);
+            }
+        }
+
+        // RULE 3: Auth Guarded Firestore Writes
+        window.saveSubmissionToCloud = async function(data) {
+            if (!auth.currentUser || !db) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'submissions', String(data.sessionId));
+                await setDoc(docRef, data, { merge: true });
+            } catch (err) {
+                console.error("Error writing submission to cloud:", err);
+            }
+        };
+
+        window.deleteSubmissionFromCloud = async function(sessionId) {
+            if (!auth.currentUser || !db) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'submissions', String(sessionId));
+                await deleteDoc(docRef);
+            } catch (err) {
+                console.error("Error deleting submission from cloud:", err);
+            }
+        };
+
+        window.clearAllSubmissionsFromCloud = async function() {
+            if (!auth.currentUser || !db) return;
+            try {
+                const subCol = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
+                const snapshot = await getDocs(subCol);
+                const deletePromises = [];
+                snapshot.forEach((docSnap) => {
+                    deletePromises.push(deleteDoc(docSnap.ref));
+                });
+                await Promise.all(deletePromises);
+            } catch (err) {
+                console.error("Error clearing submissions from cloud:", err);
+            }
+        };
+
+        initCloudSync();
+    </script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -1387,7 +1485,7 @@
             updateLiveSubmission() {
                 if (!this.playerName) return;
                 const badgeObj = this.calculateBadge(this.score, this.currentGameMode);
-                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                const submissions = this.getSubmissionsList();
                 
                 const existingIdx = submissions.findIndex(s => s.sessionId === this.currentSessionId || (s.name === this.playerName && s.isLive));
                 const record = {
@@ -1407,14 +1505,43 @@
                 } else {
                     submissions.push(record);
                 }
+
+                // Save locally and sync to Cloud Firestore
                 localStorage.setItem('smanda_submissions', JSON.stringify(submissions));
+                if (typeof window.saveSubmissionToCloud === 'function') {
+                    window.saveSubmissionToCloud(record);
+                }
+            }
+
+            getSubmissionsList() {
+                if (window.cloudSubmissions && window.cloudSubmissions.length > 0) {
+                    return window.cloudSubmissions;
+                }
+                return JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+            }
+
+            onCloudSubmissionsUpdated(submissions) {
+                // Auto-refresh UI if Admin Panel or Leaderboard Modal is open
+                const modalLeaderboard = document.getElementById('modalLeaderboard');
+                if (modalLeaderboard && !modalLeaderboard.classList.contains('hidden')) {
+                    this.renderPublicLeaderboard(submissions);
+                }
+                const viewAdmin = document.getElementById('viewAdminDashboard');
+                if (viewAdmin && !viewAdmin.classList.contains('hidden')) {
+                    this.renderAdminDashboard();
+                }
             }
 
             openLeaderboardModal() {
                 this.sound.playClick();
-                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                const submissions = this.getSubmissionsList();
                 submissions.sort((a, b) => b.score - a.score);
+                this.renderPublicLeaderboard(submissions);
+                document.getElementById('modalLeaderboard').classList.remove('hidden');
+                lucide.createIcons();
+            }
 
+            renderPublicLeaderboard(submissions) {
                 const tbody = document.getElementById('publicLeaderboardBody');
                 tbody.innerHTML = '';
 
@@ -1440,196 +1567,10 @@
                         tbody.appendChild(tr);
                     });
                 }
-
-                document.getElementById('modalLeaderboard').classList.remove('hidden');
-                lucide.createIcons();
-            }
-
-            closeLeaderboardModal() {
-                this.sound.playClick();
-                document.getElementById('modalLeaderboard').classList.add('hidden');
-            }
-
-            handleAnswer(selectedIndex) {
-                if (!this.isAnsweringAllowed) return;
-                this.isAnsweringAllowed = false;
-                clearInterval(this.timerInterval);
-
-                const currentQ = this.questions[this.currentIndex];
-                const container = document.getElementById('quizOptionsContainer');
-                const buttons = container.querySelectorAll('button');
-
-                if (selectedIndex === currentQ.answer) {
-                    this.sound.playCorrect();
-                    this.correctCount++;
-                    
-                    let speedBonus = 20;
-                    if (this.timeRemaining > 10) speedBonus = 50;
-                    else if (this.timeRemaining > 5) speedBonus = 30;
-
-                    this.score += (100 + speedBonus);
-                    document.getElementById('dashScore').innerText = `${this.score} Pts`;
-
-                    if (selectedIndex >= 0 && buttons[selectedIndex]) {
-                        buttons[selectedIndex].classList.add('option-correct');
-                    }
-                } else {
-                    this.sound.playWrong();
-                    this.wrongCount++;
-
-                    if (selectedIndex >= 0 && buttons[selectedIndex]) {
-                        buttons[selectedIndex].classList.add('option-wrong');
-                    }
-                    if (buttons[currentQ.answer]) {
-                        buttons[currentQ.answer].classList.add('option-correct');
-                    }
-                }
-
-                this.updateLiveSubmission();
-
-                setTimeout(() => {
-                    this.currentIndex++;
-                    this.loadQuestion();
-                }, 1200);
-            }
-
-            handleProgramQuizAnswer(isCorrect, btnEl) {
-                clearInterval(this.pQuizTimerInterval);
-
-                if (isCorrect) {
-                    this.sound.playCorrect();
-                    this.correctCount++;
-                    let bonus = 20;
-                    if (this.pQuizTimeRemaining > 10) bonus = 50;
-                    else if (this.pQuizTimeRemaining > 5) bonus = 30;
-
-                    this.score += (100 + bonus);
-                    if (btnEl) btnEl.className = "p-3 rounded-2xl bg-emerald-600/40 border-2 border-emerald-400 text-emerald-200 font-bold text-xs text-left";
-                } else {
-                    this.sound.playWrong();
-                    this.wrongCount++;
-                    if (btnEl) btnEl.className = "p-3 rounded-2xl bg-red-600/40 border-2 border-red-400 text-red-200 font-bold text-xs text-left";
-                }
-
-                this.updateLiveSubmission();
-
-                setTimeout(() => {
-                    document.getElementById('modalProgramQuiz').classList.add('hidden');
-                    if (this.openedCardsCount >= this.sessionPrograms.length) {
-                        this.finishGame();
-                    }
-                }, 1000);
-            }
-
-            closeMemoryMatchModal() {
-                this.sound.playClick();
-                document.getElementById('modalMemoryMatch').classList.add('hidden');
-                this.flippedMemoryCards = [];
-                this.isMemoryClickable = true;
-
-                this.updateLiveSubmission();
-
-                if (this.matchedPairsCount >= this.totalMemoryPairs) {
-                    this.finishMemoryGame();
-                }
-            }
-
-            finishGame() {
-                clearInterval(this.timerInterval);
-                clearInterval(this.pQuizTimerInterval);
-                clearInterval(this.memoryTimerInterval);
-
-                this.sound.playVictoryFanfare();
-                this.confetti.burst();
-
-                const badgeObj = this.calculateBadge(this.score, this.currentGameMode);
-                document.getElementById('finishPlayerName').innerText = this.playerName;
-                document.getElementById('finishScore').innerText = `${this.score} Pts`;
-                document.getElementById('finishCorrect').innerText = `${this.correctCount} / ${this.correctCount + this.wrongCount}`;
-                document.getElementById('finishBadge').innerText = `${badgeObj.icon} ${badgeObj.title}`;
-
-                // Finalize Live Submission Record
-                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
-                const existingIdx = submissions.findIndex(s => s.sessionId === this.currentSessionId || (s.name === this.playerName && s.isLive));
-                const finalRecord = {
-                    id: Date.now(),
-                    sessionId: this.currentSessionId,
-                    name: this.playerName,
-                    score: this.score,
-                    correct: this.correctCount,
-                    wrong: this.wrongCount,
-                    badge: `${badgeObj.icon} ${badgeObj.title}`,
-                    date: new Date().toISOString().slice(0, 16).replace('T', ' '),
-                    isLive: false
-                };
-
-                if (existingIdx !== -1) {
-                    submissions[existingIdx] = finalRecord;
-                } else {
-                    submissions.push(finalRecord);
-                }
-                localStorage.setItem('smanda_submissions', JSON.stringify(submissions));
-
-                this.switchView('viewParticipantFinish');
-            }
-
-            calculateBadge(score, mode) {
-                if (mode === 'MEMORY') {
-                    if (score >= 2500) return { title: "Memory Master", icon: "🧩" };
-                    if (score >= 2000) return { title: "Perfect Match", icon: "🏅" };
-                    if (score >= 1500) return { title: "Fast Finder", icon: "⚡" };
-                    return { title: "Duta Program SMADA", icon: "📚" };
-                } else if (mode === 'CARD') {
-                    if (score >= 2500) return { title: "Duta Program SMADA", icon: "📚" };
-                    if (score >= 2000) return { title: "SMADA Explorer", icon: "🏆" };
-                    if (score >= 1500) return { title: "Program Master", icon: "⭐" };
-                    return { title: "Amazing Learner", icon: "🎓" };
-                } else {
-                    if (score >= 2500) return { title: "Duta SMAN 2 Brebes", icon: "🏆" };
-                    if (score >= 2000) return { title: "Guru Inspiratif", icon: "⭐" };
-                    return { title: "Guru Inovatif", icon: "💡" };
-                }
-            }
-
-            switchGameModeAndPlay() {
-                this.sound.playClick();
-                if (this.currentGameMode === 'RACE') this.currentGameMode = 'CARD';
-                else if (this.currentGameMode === 'CARD') this.currentGameMode = 'MEMORY';
-                else this.currentGameMode = 'RACE';
-
-                this.updateNavModeButtons();
-                this.startGame();
-            }
-
-            openAdminAuthModal() {
-                this.sound.playClick();
-                document.getElementById('inputAdminPin').value = '';
-                document.getElementById('adminPinError').classList.add('hidden');
-                document.getElementById('modalAdminAuth').classList.remove('hidden');
-            }
-
-            closeAdminAuthModal() {
-                this.sound.playClick();
-                document.getElementById('modalAdminAuth').classList.add('hidden');
-            }
-
-            verifyAdminPin(e) {
-                if (e) e.preventDefault();
-                const pinVal = document.getElementById('inputAdminPin').value;
-                if (pinVal === this.ADMIN_PIN) {
-                    this.sound.playCorrect();
-                    document.getElementById('modalAdminAuth').classList.add('hidden');
-                    document.getElementById('navModeSelector').classList.add('hidden');
-                    this.renderAdminDashboard();
-                    this.switchView('viewAdminDashboard');
-                } else {
-                    this.sound.playWrong();
-                    document.getElementById('adminPinError').classList.remove('hidden');
-                }
             }
 
             renderAdminDashboard() {
-                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                const submissions = this.getSubmissionsList();
                 submissions.sort((a, b) => b.score - a.score);
 
                 document.getElementById('admStatTotal').innerText = submissions.length;
@@ -1654,112 +1595,27 @@
                 this.renderAdminChart(totalCorrect, totalAns - totalCorrect);
             }
 
-            renderPodium(data) {
-                const container = document.getElementById('admPodiumContainer');
-                container.innerHTML = '';
-
-                if (data.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-400 italic">Belum ada data peserta.</p>`;
-                    return;
-                }
-
-                const top3 = [data[1], data[0], data[2]]; // Rank 2, Rank 1, Rank 3 order
-                const heights = ['h-28', 'h-36', 'h-24'];
-                const bgColors = ['bg-slate-700/80', 'bg-amber-500/30 border-2 border-amber-400', 'bg-amber-800/50'];
-                const medals = ['🥈', '🥇', '🥉'];
-
-                top3.forEach((item, i) => {
-                    if (!item) return;
-                    const pillar = document.createElement('div');
-                    pillar.className = `flex flex-col items-center justify-end w-24 ${heights[i]} ${bgColors[i]} rounded-t-2xl p-2 text-center transition hover:scale-105`;
-                    pillar.innerHTML = `
-                        <span class="text-xl mb-1">${medals[i]}</span>
-                        <p class="text-xs font-black text-white truncate w-full">${item.name}</p>
-                        <p class="text-[10px] font-bold text-amber-300">${item.score} Pts</p>
-                    `;
-                    container.appendChild(pillar);
-                });
-            }
-
-            renderAdminTable(data) {
-                const tbody = document.getElementById('admTableBody');
-                tbody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data peserta ditemukan.</td></tr>`;
-                    return;
-                }
-
-                data.forEach((item, idx) => {
-                    const totalQ = (item.correct || 0) + (item.wrong || 0);
-                    const itemAcc = totalQ > 0 ? Math.round((item.correct / totalQ) * 100) : 0;
-                    
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-white/5 transition border-b border-white/5";
-                    tr.innerHTML = `
-                        <td class="p-3 text-center font-bold text-amber-400">#${idx + 1}</td>
-                        <td class="p-3 font-bold text-white">${item.name}</td>
-                        <td class="p-3 text-center font-extrabold text-amber-300">${item.score} Pts</td>
-                        <td class="p-3 text-center text-emerald-400">${item.correct || 0} / ${item.wrong || 0}</td>
-                        <td class="p-3 text-center font-bold text-blue-300">${itemAcc}%</td>
-                        <td class="p-3 font-medium text-slate-200">${item.badge || '-'}</td>
-                        <td class="p-3 text-slate-400 text-[10px]">${item.date || '-'}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="app.deleteSubmission(${item.id})" class="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition">
-                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-                lucide.createIcons();
-            }
-
-            renderAdminChart(correct, wrong) {
-                const canvas = document.getElementById('admStatsChart');
-                if (!canvas) return;
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                const total = correct + wrong;
-                if (total === 0) return;
-
-                const correctAngle = (correct / total) * Math.PI * 2;
-
-                // Draw Correct Slice (Green)
-                ctx.beginPath();
-                ctx.moveTo(70, 70);
-                ctx.arc(70, 70, 60, 0, correctAngle);
-                ctx.fillStyle = '#10b981';
-                ctx.fill();
-
-                // Draw Wrong Slice (Red)
-                ctx.beginPath();
-                ctx.moveTo(70, 70);
-                ctx.arc(70, 70, 60, correctAngle, Math.PI * 2);
-                ctx.fillStyle = '#ef4444';
-                ctx.fill();
-
-                // Donut Hole Cutout
-                ctx.beginPath();
-                ctx.arc(70, 70, 35, 0, Math.PI * 2);
-                ctx.fillStyle = '#0f172a';
-                ctx.fill();
-            }
-
-            filterAdminTable() {
-                const query = document.getElementById('inputSearchAdmin').value.toLowerCase();
-                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
-                const filtered = submissions.filter(s => s.name.toLowerCase().includes(query));
-                this.renderAdminTable(filtered);
-            }
-
             deleteSubmission(id) {
                 if (confirm("Hapus data peserta ini dari rekapitulasi?")) {
                     this.sound.playClick();
-                    let submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                    let submissions = this.getSubmissionsList();
+                    const target = submissions.find(s => s.id === id);
+                    if (target && typeof window.deleteSubmissionFromCloud === 'function') {
+                        window.deleteSubmissionFromCloud(target.sessionId || target.id);
+                    }
                     submissions = submissions.filter(s => s.id !== id);
                     localStorage.setItem('smanda_submissions', JSON.stringify(submissions));
+                    this.renderAdminDashboard();
+                }
+            }
+
+            confirmClearData() {
+                if (confirm("PERINGATAN: Apakah Anda yakin ingin MENGHAPUS SELURUH REKAP NILAI PESERTA? Action ini tidak bisa dibatalkan!")) {
+                    this.sound.playClick();
+                    localStorage.setItem('smanda_submissions', JSON.stringify([]));
+                    if (typeof window.clearAllSubmissionsFromCloud === 'function') {
+                        window.clearAllSubmissionsFromCloud();
+                    }
                     this.renderAdminDashboard();
                 }
             }
