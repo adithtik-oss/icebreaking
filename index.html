@@ -221,6 +221,10 @@
 
             <!-- Audio & Admin Controls -->
             <div class="flex items-center space-x-2">
+                <button onclick="app.openLeaderboardModal()" title="Papan Skor Live" class="p-2.5 rounded-xl glass-light hover:bg-white/20 transition text-amber-300 flex items-center justify-center gap-1 text-xs font-bold px-3">
+                    <i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i>
+                    <span class="hidden sm:inline">Papan Skor</span>
+                </button>
                 <button id="btnSound" onclick="app.toggleSFX()" title="Efek Suara (SFX)" class="p-2.5 rounded-xl glass-light hover:bg-white/20 transition text-amber-400 flex items-center justify-center">
                     <i data-lucide="volume-2" class="w-5 h-5"></i>
                 </button>
@@ -514,10 +518,13 @@
 
                 <div class="bg-blue-900/40 border border-blue-500/30 p-3 rounded-2xl text-xs text-blue-200 mb-5 flex items-start gap-2 text-left">
                     <i data-lucide="info" class="w-4 h-4 text-blue-400 shrink-0 mt-0.5"></i>
-                    <span>Skor Anda telah tersimpan secara otomatis. Anda dapat mencoba mode lain atau melihat rekap melalui Admin Guru.</span>
+                    <span>Skor Anda telah tersimpan secara otomatis. Anda dapat melihat Papan Skor Publik atau mencoba mode lain.</span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <button onclick="app.openLeaderboardModal()" class="py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="trophy" class="w-4 h-4"></i> Papan Skor Live
+                    </button>
                     <button onclick="app.switchGameModeAndPlay()" class="py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-black text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-1.5">
                         <i data-lucide="play-circle" class="w-4 h-4"></i> <span id="btnSwitchModeText">Coba Mode Lain</span>
                     </button>
@@ -748,62 +755,47 @@
             </div>
         </div>
 
-        <!-- MODAL 1: PROGRAM UNGGULAN INFO MODAL -->
-        <div id="modalProgramDetail" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-            <div class="glass-card max-w-lg w-full rounded-3xl p-6 border border-amber-400/40 shadow-2xl relative animate-card-pop text-left my-auto">
-                <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+        <!-- MODAL PUBLIC LEADERBOARD FOR PARTICIPANTS -->
+        <div id="modalLeaderboard" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+            <div class="glass-card max-w-2xl w-full rounded-3xl p-6 border border-amber-400/40 shadow-2xl relative animate-card-pop text-left my-auto space-y-4">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3">
                     <div class="flex items-center space-x-3">
-                        <div id="pDetailIconBox" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-amber-400 p-0.5 flex items-center justify-center text-white">
-                            <i data-lucide="book-open" class="w-6 h-6"></i>
+                        <div class="p-3 bg-amber-400/20 text-amber-400 rounded-2xl border border-amber-400/30">
+                            <i data-lucide="trophy" class="w-6 h-6"></i>
                         </div>
                         <div>
                             <span class="text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-md border border-amber-400/30">
-                                Program Unggulan SMANDA
+                                SMAN 2 BREBES
                             </span>
-                            <h3 id="pDetailTitle" class="text-lg font-black text-white leading-tight mt-0.5">
-                                Nama Program
+                            <h3 class="text-lg font-black text-white leading-tight mt-0.5">
+                                🏆 PAPAN SKOR & PERINGKAT PESERTA
                             </h3>
                         </div>
                     </div>
-                    <button onclick="app.closeProgramDetailModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <button onclick="app.closeLeaderboardModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
 
-                <div id="pDetailVisual" class="w-full h-32 rounded-2xl bg-gradient-to-r from-blue-900/60 via-indigo-900/60 to-slate-900 border border-white/10 flex flex-col items-center justify-center p-4 mb-4 text-center">
-                    <i data-lucide="sparkles" class="w-10 h-10 text-amber-400 mb-1"></i>
-                    <p class="text-xs font-bold text-blue-200">SMAN 2 BREBES - UNGGUL & BERKARAKTER</p>
+                <div class="overflow-x-auto rounded-2xl border border-white/10 max-h-80">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/90 text-amber-300 font-extrabold border-b border-white/10 uppercase tracking-wider sticky top-0">
+                                <th class="p-3 text-center">Rank</th>
+                                <th class="p-3">Nama Peserta</th>
+                                <th class="p-3 text-center">Skor Total</th>
+                                <th class="p-3 text-center">Benar / Salah</th>
+                                <th class="p-3">Lencana Kehormatan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="publicLeaderboardBody" class="divide-y divide-white/5 text-slate-300 font-medium">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="space-y-3 text-xs leading-relaxed text-slate-200 mb-6">
-                    <div>
-                        <h4 class="font-extrabold text-amber-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                            <i data-lucide="info" class="w-4 h-4"></i> Deskripsi Program
-                        </h4>
-                        <p id="pDetailDescription" class="bg-slate-900/60 p-3 rounded-xl border border-white/5">
-                            Deskripsi singkat program...
-                        </p>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-blue-500/20">
-                            <h4 class="font-bold text-blue-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                                <i data-lucide="target" class="w-3.5 h-3.5"></i> Tujuan
-                            </h4>
-                            <p id="pDetailGoal" class="text-[11px] text-slate-300">Tujuan program...</p>
-                        </div>
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-emerald-500/20">
-                            <h4 class="font-bold text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Manfaat
-                            </h4>
-                            <p id="pDetailBenefit" class="text-[11px] text-slate-300">Manfaat program...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <button onclick="app.proceedToProgramQuiz()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-amber-500 hover:from-blue-500 hover:to-amber-400 text-white font-black text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2 group">
-                    <span>LANJUTKAN KE SOAL KUIS (+100 PTS)</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                <button onclick="app.closeLeaderboardModal()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase transition">
+                    Tutup
                 </button>
             </div>
         </div>
@@ -1366,9 +1358,13 @@
             }
 
             startGame() {
+                this.score = 0;
                 this.correctCount = 0;
                 this.wrongCount = 0;
                 this.currentIndex = 0;
+                this.currentSessionId = Date.now();
+
+                this.updateLiveSubmission();
 
                 if (this.currentGameMode === 'RACE') {
                     this.questions = JSON.parse(JSON.stringify(QUESTIONS_RACE));
@@ -1388,69 +1384,70 @@
                 }
             }
 
-            loadQuestion() {
-                if (this.currentIndex >= this.questions.length) {
-                    this.finishGame();
-                    return;
+            updateLiveSubmission() {
+                if (!this.playerName) return;
+                const badgeObj = this.calculateBadge(this.score, this.currentGameMode);
+                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                
+                const existingIdx = submissions.findIndex(s => s.sessionId === this.currentSessionId || (s.name === this.playerName && s.isLive));
+                const record = {
+                    id: existingIdx !== -1 ? submissions[existingIdx].id : Date.now(),
+                    sessionId: this.currentSessionId,
+                    name: this.playerName,
+                    score: this.score,
+                    correct: this.correctCount,
+                    wrong: this.wrongCount,
+                    badge: `${badgeObj.icon} ${badgeObj.title}`,
+                    date: new Date().toISOString().slice(0, 16).replace('T', ' '),
+                    isLive: true
+                };
+
+                if (existingIdx !== -1) {
+                    submissions[existingIdx] = record;
+                } else {
+                    submissions.push(record);
+                }
+                localStorage.setItem('smanda_submissions', JSON.stringify(submissions));
+            }
+
+            openLeaderboardModal() {
+                this.sound.playClick();
+                const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
+                submissions.sort((a, b) => b.score - a.score);
+
+                const tbody = document.getElementById('publicLeaderboardBody');
+                tbody.innerHTML = '';
+
+                if (submissions.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data peserta.</td></tr>`;
+                } else {
+                    submissions.forEach((item, idx) => {
+                        const tr = document.createElement('tr');
+                        const isCurrentPlayer = item.name === this.playerName;
+                        tr.className = `transition border-b border-white/5 ${isCurrentPlayer ? 'bg-blue-600/30 font-bold text-white' : 'hover:bg-white/5'}`;
+                        tr.innerHTML = `
+                            <td class="p-3 text-center font-bold ${idx < 3 ? 'text-amber-400 text-sm' : 'text-slate-400'}">
+                                ${idx === 0 ? '🥇 #1' : idx === 1 ? '🥈 #2' : idx === 2 ? '🥉 #3' : `#${idx + 1}`}
+                            </td>
+                            <td class="p-3 font-bold text-white flex items-center gap-1.5">
+                                <span>${item.name}</span>
+                                ${isCurrentPlayer ? '<span class="text-[9px] bg-blue-500 text-white px-1.5 py-0.5 rounded-md uppercase">Kamu</span>' : ''}
+                            </td>
+                            <td class="p-3 text-center font-extrabold text-amber-300">${item.score} Pts</td>
+                            <td class="p-3 text-center text-emerald-400">${item.correct || 0} / ${item.wrong || 0}</td>
+                            <td class="p-3 font-medium text-slate-200">${item.badge || '-'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
                 }
 
-                const currentQ = this.questions[this.currentIndex];
-                document.getElementById('quizCategory').innerHTML = `<i data-lucide="bookmark" class="w-3.5 h-3.5"></i> ${currentQ.category}`;
-                document.getElementById('quizQuestionText').innerText = currentQ.question;
-                document.getElementById('dashProgress').innerText = `${this.currentIndex + 1} / ${this.questions.length}`;
-
-                const container = document.getElementById('quizOptionsContainer');
-                container.innerHTML = '';
-
-                currentQ.options.forEach((optText, optIdx) => {
-                    const btn = document.createElement('button');
-                    btn.className = "option-btn w-full p-4 rounded-2xl bg-slate-900/80 border border-slate-700 text-slate-200 font-semibold text-xs sm:text-sm text-left flex items-center justify-between group";
-                    btn.innerHTML = `
-                        <span class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-300 font-bold flex items-center justify-center text-xs group-hover:bg-blue-500 group-hover:text-white transition">
-                                ${String.fromCharCode(65 + optIdx)}
-                            </span>
-                            <span>${optText}</span>
-                        </span>
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 group-hover:text-white transition"></i>
-                    `;
-                    btn.onclick = () => this.handleAnswer(optIdx);
-                    container.appendChild(btn);
-                });
+                document.getElementById('modalLeaderboard').classList.remove('hidden');
                 lucide.createIcons();
-
-                this.isAnsweringAllowed = true;
-                this.startQuestionTimer();
             }
 
-            startQuestionTimer() {
-                clearInterval(this.timerInterval);
-                this.timeRemaining = 15;
-                this.updateTimerUI();
-
-                this.timerInterval = setInterval(() => {
-                    this.timeRemaining--;
-                    this.updateTimerUI();
-                    if (this.timeRemaining <= 5) this.sound.playTick();
-
-                    if (this.timeRemaining <= 0) {
-                        clearInterval(this.timerInterval);
-                        this.handleAnswer(-1); // Time out
-                    }
-                }, 1000);
-            }
-
-            updateTimerUI() {
-                const timerText = document.getElementById('quizTimerText');
-                const circle = document.getElementById('quizTimerCircle');
-                timerText.innerText = this.timeRemaining;
-
-                const offset = 263.89 - (this.timeRemaining / 15) * 263.89;
-                circle.style.strokeDashoffset = offset;
-
-                if (this.timeRemaining > 8) circle.style.stroke = "#10b981";
-                else if (this.timeRemaining > 4) circle.style.stroke = "#f59e0b";
-                else circle.style.stroke = "#ef4444";
+            closeLeaderboardModal() {
+                this.sound.playClick();
+                document.getElementById('modalLeaderboard').classList.add('hidden');
             }
 
             handleAnswer(selectedIndex) {
@@ -1488,135 +1485,12 @@
                     }
                 }
 
+                this.updateLiveSubmission();
+
                 setTimeout(() => {
                     this.currentIndex++;
                     this.loadQuestion();
                 }, 1200);
-            }
-
-            startCardGame() {
-                this.openedCardsCount = 0;
-                const rawProgs = JSON.parse(localStorage.getItem('smanda_programs') || '[]');
-                this.sessionPrograms = JSON.parse(JSON.stringify(rawProgs));
-                this.shuffleArray(this.sessionPrograms);
-
-                document.getElementById('cardProgressText').innerText = `0 / ${this.sessionPrograms.length} Opened`;
-                this.renderCardGrid();
-                this.switchView('viewCardGame');
-                this.sound.startBGM();
-            }
-
-            renderCardGrid() {
-                const container = document.getElementById('cardGridContainer');
-                container.innerHTML = '';
-
-                this.sessionPrograms.forEach((p, idx) => {
-                    const card = document.createElement('div');
-                    card.className = `perspective-1000 h-28 sm:h-32 cursor-pointer select-none card-item-${idx}`;
-                    
-                    const inner = document.createElement('div');
-                    inner.id = `cardInner_${idx}`;
-                    inner.className = `card-inner w-full h-full rounded-2xl shadow-lg border border-white/10 ${p.opened ? 'card-flipped' : ''}`;
-
-                    const front = document.createElement('div');
-                    front.className = "card-front bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 border-2 border-blue-500/40 flex flex-col items-center justify-center p-2 text-center hover:border-amber-400/80 transition group";
-                    front.innerHTML = `
-                        <div class="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-amber-400 font-black text-xl group-hover:scale-110 transition">
-                            ❓
-                        </div>
-                        <span class="text-[9px] font-extrabold tracking-widest text-blue-300 mt-2 uppercase">SMANDA</span>
-                    `;
-
-                    const back = document.createElement('div');
-                    back.className = "card-back bg-gradient-to-tr from-blue-900 via-indigo-900 to-slate-900 border-2 border-amber-400/80 flex flex-col items-center justify-center p-2 text-center shadow-2xl";
-                    back.innerHTML = `
-                        <div class="p-2 rounded-xl bg-amber-400/20 text-amber-300 mb-1">
-                            <i data-lucide="${p.icon || 'book-open'}" class="w-6 h-6"></i>
-                        </div>
-                        <p class="text-xs font-black text-white leading-tight">${p.program}</p>
-                    `;
-
-                    inner.appendChild(front);
-                    inner.appendChild(back);
-                    card.appendChild(inner);
-
-                    card.onclick = () => this.handleCardClick(idx);
-                    container.appendChild(card);
-                });
-                lucide.createIcons();
-            }
-
-            handleCardClick(index) {
-                const prog = this.sessionPrograms[index];
-                if (prog.opened) return;
-
-                this.sound.playCardFlip();
-                prog.opened = true;
-                this.openedCardsCount++;
-                document.getElementById('cardProgressText').innerText = `${this.openedCardsCount} / ${this.sessionPrograms.length} Opened`;
-
-                const inner = document.getElementById(`cardInner_${index}`);
-                if (inner) inner.classList.add('card-flipped');
-
-                this.activeProgramRef = prog;
-
-                setTimeout(() => {
-                    document.getElementById('pDetailTitle').innerText = prog.program;
-                    document.getElementById('pDetailDescription').innerText = prog.description;
-                    document.getElementById('pDetailGoal').innerText = prog.goal;
-                    document.getElementById('pDetailBenefit').innerText = prog.benefit;
-                    document.getElementById('pDetailIconBox').innerHTML = `<i data-lucide="${prog.icon || 'book-open'}" class="w-6 h-6"></i>`;
-                    
-                    document.getElementById('modalProgramDetail').classList.remove('hidden');
-                    lucide.createIcons();
-                }, 400);
-            }
-
-            closeProgramDetailModal() {
-                this.sound.playClick();
-                document.getElementById('modalProgramDetail').classList.add('hidden');
-            }
-
-            proceedToProgramQuiz() {
-                this.sound.playClick();
-                document.getElementById('modalProgramDetail').classList.add('hidden');
-
-                const prog = this.activeProgramRef;
-                document.getElementById('pQuizQuestion').innerText = prog.question;
-
-                const optionsContainer = document.getElementById('pQuizOptions');
-                optionsContainer.innerHTML = '';
-
-                const opts = prog.options.map((optText, i) => ({ text: optText, originalIdx: i }));
-                this.shuffleArray(opts);
-
-                opts.forEach((o, idx) => {
-                    const btn = document.createElement('button');
-                    btn.className = "p-3 rounded-2xl bg-slate-900 border border-slate-700 text-slate-200 font-semibold text-xs text-left hover:border-amber-400 hover:bg-slate-800 transition";
-                    btn.innerText = `${String.fromCharCode(65 + idx)}. ${o.text}`;
-                    btn.onclick = () => this.handleProgramQuizAnswer(o.originalIdx === prog.answer, btn);
-                    optionsContainer.appendChild(btn);
-                });
-
-                document.getElementById('modalProgramQuiz').classList.remove('hidden');
-                this.startProgramQuizTimer();
-            }
-
-            startProgramQuizTimer() {
-                clearInterval(this.pQuizTimerInterval);
-                this.pQuizTimeRemaining = 15;
-                document.getElementById('pQuizTimer').innerText = `${this.pQuizTimeRemaining}s`;
-
-                this.pQuizTimerInterval = setInterval(() => {
-                    this.pQuizTimeRemaining--;
-                    document.getElementById('pQuizTimer').innerText = `${this.pQuizTimeRemaining}s`;
-                    if (this.pQuizTimeRemaining <= 5) this.sound.playTick();
-
-                    if (this.pQuizTimeRemaining <= 0) {
-                        clearInterval(this.pQuizTimerInterval);
-                        this.handleProgramQuizAnswer(false, null);
-                    }
-                }, 1000);
             }
 
             handleProgramQuizAnswer(isCorrect, btnEl) {
@@ -1637,6 +1511,8 @@
                     if (btnEl) btnEl.className = "p-3 rounded-2xl bg-red-600/40 border-2 border-red-400 text-red-200 font-bold text-xs text-left";
                 }
 
+                this.updateLiveSubmission();
+
                 setTimeout(() => {
                     document.getElementById('modalProgramQuiz').classList.add('hidden');
                     if (this.openedCardsCount >= this.sessionPrograms.length) {
@@ -1645,223 +1521,17 @@
                 }, 1000);
             }
 
-            changeMemoryLevel(lvl) {
-                this.memoryLevel = lvl;
-                this.sound.playClick();
-                this.startMemoryGame();
-            }
-
-            startMemoryGame() {
-                clearInterval(this.memoryTimerInterval);
-                this.matchedPairsCount = 0;
-                this.memoryAttempts = 0;
-                this.flippedMemoryCards = [];
-                this.isMemoryClickable = true;
-
-                let pairsCount = 6;
-                let maxTime = 60;
-                if (this.memoryLevel === 'MEDIUM') { pairsCount = 8; maxTime = 90; }
-                else if (this.memoryLevel === 'HARD') { pairsCount = 10; maxTime = 120; }
-
-                this.totalMemoryPairs = pairsCount;
-                this.memoryTimeRemaining = maxTime;
-
-                document.getElementById('btnMemEasy').className = `px-3 py-1.5 rounded-xl text-xs font-bold transition ${this.memoryLevel === 'EASY' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow' : 'text-slate-300 hover:bg-white/10'}`;
-                document.getElementById('btnMemMedium').className = `px-3 py-1.5 rounded-xl text-xs font-bold transition ${this.memoryLevel === 'MEDIUM' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow' : 'text-slate-300 hover:bg-white/10'}`;
-                document.getElementById('btnMemHard').className = `px-3 py-1.5 rounded-xl text-xs font-bold transition ${this.memoryLevel === 'HARD' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow' : 'text-slate-300 hover:bg-white/10'}`;
-
-                document.getElementById('memPlayerName').innerText = this.playerName;
-                document.getElementById('memTotalScore').innerText = `${this.score} Pts`;
-                document.getElementById('memProgress').innerText = `0 / ${pairsCount}`;
-                document.getElementById('memAccuracyBadge').innerText = `0 Try (100%)`;
-
-                const allPairs = JSON.parse(localStorage.getItem('smanda_memory_pairs') || '[]');
-                let selectedPairs = JSON.parse(JSON.stringify(allPairs));
-                this.shuffleArray(selectedPairs);
-                if (selectedPairs.length > pairsCount) selectedPairs = selectedPairs.slice(0, pairsCount);
-
-                const deck = [];
-                selectedPairs.forEach((item, idx) => {
-                    deck.push({
-                        id: `A_${idx}`, pairKey: item.pairKey, type: 'TEXT', title: item.name, icon: item.icon,
-                        description: item.description, goal: item.goal, benefit: item.benefit, isFlipped: false, isMatched: false
-                    });
-                    deck.push({
-                        id: `B_${idx}`, pairKey: item.pairKey, type: 'ICON', title: item.name, icon: item.icon,
-                        description: item.description, goal: item.goal, benefit: item.benefit, isFlipped: false, isMatched: false
-                    });
-                });
-
-                this.shuffleArray(deck);
-                this.memoryCards = deck;
-
-                this.renderMemoryGrid();
-                this.switchView('viewMemoryGame');
-                this.sound.startBGM();
-                this.startMemoryTimer(maxTime);
-            }
-
-            renderMemoryGrid() {
-                const container = document.getElementById('memGridContainer');
-                container.innerHTML = '';
-
-                this.memoryCards.forEach((card, idx) => {
-                    const cardWrapper = document.createElement('div');
-                    cardWrapper.className = `perspective-1000 h-24 sm:h-28 cursor-pointer select-none mem-card-${idx}`;
-                    
-                    const cardInner = document.createElement('div');
-                    cardInner.id = `memCardInner_${idx}`;
-                    cardInner.className = `card-inner w-full h-full rounded-2xl shadow-lg border border-white/10 ${card.isFlipped ? 'card-flipped' : ''}`;
-
-                    const cardFront = document.createElement('div');
-                    cardFront.className = `card-front bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border-2 border-emerald-500/40 rounded-2xl flex flex-col items-center justify-center p-2 text-center hover:border-amber-400/80 transition group`;
-                    cardFront.innerHTML = `
-                        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-amber-400 font-black text-lg group-hover:scale-110 transition">
-                            ❓
-                        </div>
-                        <span class="text-[8px] font-extrabold tracking-widest text-slate-400 mt-1 uppercase">SMANDA</span>
-                    `;
-
-                    const cardBack = document.createElement('div');
-                    cardBack.className = `card-back bg-gradient-to-tr from-emerald-900 via-teal-900 to-slate-900 rounded-2xl flex flex-col items-center justify-center p-2 text-center border-2 ${card.isMatched ? 'border-emerald-400 bg-emerald-950/80' : 'border-amber-400'} shadow-2xl`;
-                    
-                    if (card.type === 'TEXT') {
-                        cardBack.innerHTML = `
-                            <span class="text-[9px] font-extrabold text-amber-300 uppercase tracking-wider mb-1">PROGRAM</span>
-                            <p class="text-xs font-black text-white leading-tight">${card.title}</p>
-                        `;
-                    } else {
-                        cardBack.innerHTML = `
-                            <div class="p-2 rounded-xl bg-amber-400/20 text-amber-300 mb-1">
-                                <i data-lucide="${card.icon || 'book-open'}" class="w-6 h-6"></i>
-                            </div>
-                            <span class="text-[9px] font-extrabold text-emerald-300">${card.title}</span>
-                        `;
-                    }
-
-                    cardInner.appendChild(cardFront);
-                    cardInner.appendChild(cardBack);
-                    cardWrapper.appendChild(cardInner);
-
-                    cardWrapper.onclick = () => this.handleMemoryCardClick(idx);
-                    container.appendChild(cardWrapper);
-                });
-                lucide.createIcons();
-            }
-
-            handleMemoryCardClick(index) {
-                if (!this.isMemoryClickable) return;
-                const card = this.memoryCards[index];
-                if (card.isFlipped || card.isMatched) return;
-
-                this.sound.playCardFlip();
-                card.isFlipped = true;
-                this.flippedMemoryCards.push({ index, card });
-
-                const cardInner = document.getElementById(`memCardInner_${index}`);
-                if (cardInner) cardInner.classList.add('card-flipped');
-
-                if (this.flippedMemoryCards.length === 2) {
-                    this.isMemoryClickable = false;
-                    this.memoryAttempts++;
-
-                    const [first, second] = this.flippedMemoryCards;
-                    if (first.card.pairKey === second.card.pairKey) {
-                        this.sound.playCorrect();
-                        this.confetti.burst();
-                        first.card.isMatched = true;
-                        second.card.isMatched = true;
-                        this.matchedPairsCount++;
-                        this.correctCount++;
-
-                        this.score += 100;
-                        document.getElementById('memTotalScore').innerText = `${this.score} Pts`;
-                        document.getElementById('memProgress').innerText = `${this.matchedPairsCount} / ${this.totalMemoryPairs}`;
-
-                        const acc = Math.round((this.matchedPairsCount / this.memoryAttempts) * 100);
-                        document.getElementById('memAccuracyBadge').innerText = `${this.memoryAttempts} Try (${acc}%)`;
-
-                        setTimeout(() => {
-                            this.showMemoryMatchModal(first.card);
-                        }, 500);
-                    } else {
-                        this.sound.playWrong();
-                        this.wrongCount++;
-                        const acc = Math.round((this.matchedPairsCount / this.memoryAttempts) * 100);
-                        document.getElementById('memAccuracyBadge').innerText = `${this.memoryAttempts} Try (${acc}%)`;
-
-                        setTimeout(() => {
-                            first.card.isFlipped = false;
-                            second.card.isFlipped = false;
-                            const el1 = document.getElementById(`memCardInner_${first.index}`);
-                            const el2 = document.getElementById(`memCardInner_${second.index}`);
-                            if (el1) el1.classList.remove('card-flipped');
-                            if (el2) el2.classList.remove('card-flipped');
-                            this.flippedMemoryCards = [];
-                            this.isMemoryClickable = true;
-                        }, 1000);
-                    }
-                }
-            }
-
-            showMemoryMatchModal(cardInfo) {
-                document.getElementById('memMatchTitle').innerText = cardInfo.title;
-                document.getElementById('memMatchDesc').innerText = cardInfo.description;
-                document.getElementById('memMatchGoal').innerText = cardInfo.goal;
-                document.getElementById('memMatchBenefit').innerText = cardInfo.benefit;
-                document.getElementById('memMatchIcon').innerHTML = `<i data-lucide="${cardInfo.icon || 'book-open'}" class="w-6 h-6"></i>`;
-
-                document.getElementById('modalMemoryMatch').classList.remove('hidden');
-                lucide.createIcons();
-            }
-
             closeMemoryMatchModal() {
                 this.sound.playClick();
                 document.getElementById('modalMemoryMatch').classList.add('hidden');
                 this.flippedMemoryCards = [];
                 this.isMemoryClickable = true;
 
+                this.updateLiveSubmission();
+
                 if (this.matchedPairsCount >= this.totalMemoryPairs) {
                     this.finishMemoryGame();
                 }
-            }
-
-            startMemoryTimer(maxTime) {
-                this.memoryTimeRemaining = maxTime;
-                this.updateMemoryTimerUI(maxTime);
-
-                this.memoryTimerInterval = setInterval(() => {
-                    this.memoryTimeRemaining--;
-                    this.updateMemoryTimerUI(maxTime);
-                    if (this.memoryTimeRemaining <= 5) this.sound.playTick();
-
-                    if (this.memoryTimeRemaining <= 0) {
-                        clearInterval(this.memoryTimerInterval);
-                        this.finishMemoryGame();
-                    }
-                }, 1000);
-            }
-
-            updateMemoryTimerUI(maxTime) {
-                const timerText = document.getElementById('memTimerText');
-                const circle = document.getElementById('memTimerCircle');
-                timerText.innerText = this.memoryTimeRemaining;
-
-                const offset = 263.89 - (this.memoryTimeRemaining / maxTime) * 263.89;
-                circle.style.strokeDashoffset = offset;
-
-                if (this.memoryTimeRemaining > (maxTime * 0.5)) circle.style.stroke = "#10b981";
-                else if (this.memoryTimeRemaining > (maxTime * 0.25)) circle.style.stroke = "#f59e0b";
-                else circle.style.stroke = "#ef4444";
-            }
-
-            finishMemoryGame() {
-                clearInterval(this.memoryTimerInterval);
-                if (this.matchedPairsCount >= this.totalMemoryPairs) {
-                    const timeBonus = this.memoryTimeRemaining * 5;
-                    this.score += (300 + timeBonus);
-                }
-                this.finishGame();
             }
 
             finishGame() {
@@ -1878,18 +1548,26 @@
                 document.getElementById('finishCorrect').innerText = `${this.correctCount} / ${this.correctCount + this.wrongCount}`;
                 document.getElementById('finishBadge').innerText = `${badgeObj.icon} ${badgeObj.title}`;
 
-                // Save Submission to LocalStorage
+                // Finalize Live Submission Record
                 const submissions = JSON.parse(localStorage.getItem('smanda_submissions') || '[]');
-                const newRecord = {
+                const existingIdx = submissions.findIndex(s => s.sessionId === this.currentSessionId || (s.name === this.playerName && s.isLive));
+                const finalRecord = {
                     id: Date.now(),
+                    sessionId: this.currentSessionId,
                     name: this.playerName,
                     score: this.score,
                     correct: this.correctCount,
                     wrong: this.wrongCount,
                     badge: `${badgeObj.icon} ${badgeObj.title}`,
-                    date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+                    date: new Date().toISOString().slice(0, 16).replace('T', ' '),
+                    isLive: false
                 };
-                submissions.push(newRecord);
+
+                if (existingIdx !== -1) {
+                    submissions[existingIdx] = finalRecord;
+                } else {
+                    submissions.push(finalRecord);
+                }
                 localStorage.setItem('smanda_submissions', JSON.stringify(submissions));
 
                 this.switchView('viewParticipantFinish');
